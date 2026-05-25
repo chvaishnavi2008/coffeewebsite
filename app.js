@@ -391,8 +391,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const audioToggle = document.getElementById("audio-toggle");
         if (!audioToggle) return;
 
-        // Soft, relaxing royalty-free ambient lofi track from Mixkit
-        const audio = new Audio("https://assets.mixkit.co/music/preview/mixkit-lo-fi-night-walk-357.mp3");
+        // Use a highly stable, direct public MP3 track
+        const audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         audio.loop = true;
         audio.volume = 0.25;
 
