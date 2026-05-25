@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew Magic Moments | Premium Luxury Café Experience</title>
+    <meta name="description" content="Experience coffee crafted with emotion. Brew Magic Moments blends ethically sourced beans, expert roasting, and cozy luxury ambient spaces.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="loader-logo">Brew <span>Magic</span> Moments</div>
+        <div class="loader-bar-bg">
+            <div class="loader-bar" id="loader-bar"></div>
+        </div>
+        <div class="loader-percent" id="loader-percent">0%</div>
+    </div>
+
+    <!-- CANVAS BACKGROUND (FIXED FOR STORY SCROLL) -->
+    <div class="canvas-container">
+        <canvas id="coffee-canvas"></canvas>
+        <div class="canvas-overlay"></div>
+    </div>
+
+    <!-- STICKY APPLE-STYLE NAVIGATION -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">Brew <span>Magic</span> Moments</div>
+        <ul class="nav-links">
+            <li><a href="#hero" class="nav-link active">Home</a></li>
+            <li><a href="#story" class="nav-link">Story</a></li>
+            <li><a href="#journey" class="nav-link">Journey</a></li>
+            <li><a href="#menu" class="nav-link">Menu</a></li>
+            <li><a href="#experience" class="nav-link">Experience</a></li>
+            <li><a href="#gallery" class="nav-link">Gallery</a></li>
+            <li><a href="#visit" class="nav-link">Visit</a></li>
+        </ul>
+        <div class="nav-cta">
+            <button class="btn-primary" onclick="alert('Order Feature coming soon!')">Order Coffee</button>
+        </div>
+        <button class="mobile-nav-toggle" id="mobile-toggle" aria-label="Toggle menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </nav>
+
+    <!-- SECTION 1: HERO (IMMERSIVE INTRO) -->
+    <section id="hero">
+        <div class="hero-content">
+            <div class="hero-brand" id="hero-brand">Brew Magic Moments</div>
+            <h1 class="hero-headline" id="hero-title">Coffee, crafted<br>with <span>emotion.</span></h1>
+            <p class="hero-subtext" id="hero-desc">Every cup is a story of warmth, care, and connection. Born from a love for real coffee.</p>
+            <div class="hero-actions" id="hero-btns">
+                <a href="#menu" class="btn-primary">Explore Menu</a>
+                <a href="#visit" class="btn-secondary">Visit Café</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll to Brew</span>
+            <div class="mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: OUR STORY (BRAND INTRO) -->
+    <section id="story">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-visual reveal-fade-left">
+                    <div class="story-img-container">
+                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80" alt="Brew Magic Moments cozy cafe storefront and warm lighting">
+                    </div>
+                </div>
+                <div class="story-content reveal-fade-right">
+                    <span class="subtitle">Our Story</span>
+                    <h2 class="section-title">Born from a love for <span>real coffee.</span></h2>
+                    <p>We believe coffee is more than a drink — it’s a ritual, a pause, a moment of connection in a busy world. Each bean we roast is treated with absolute reverence to draw out its innate emotional warmth.</p>
+                    
+                    <div class="story-features">
+                        <div class="story-feature-item">
+                            <div class="feature-number">01</div>
+                            <div class="feature-info">
+                                <h3>Ethically Sourced Beans</h3>
+                                <p>We partner directly with sustainable, single-origin family estates across the global coffee belt.</p>
+                            </div>
+                        </div>
+                        <div class="story-feature-item">
+                            <div class="feature-number">02</div>
+                            <div class="feature-info">
+                                <h3>Expert Roasting Process</h3>
+                                <p>Small-batch roasted in-house daily to maximize sweet caramelization and delicate floral notes.</p>
+                            </div>
+                        </div>
+                        <div class="story-feature-item">
+                            <div class="feature-number">03</div>
+                            <div class="feature-info">
+                                <h3>Handcrafted Brewing</h3>
+                                <p>Brewed with precision water chemistry and customized extraction variables for every cup.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: BEAN TO CUP JOURNEY (SCROLL PINNED) -->
+    <section id="journey">
+        <div class="journey-pin-container">
+            <div class="journey-storyboards">
+                <!-- STEP 1 -->
+                <div class="journey-step active" data-step="1">
+                    <span class="step-num">Step 01</span>
+                    <h2>From carefully selected <span>beans...</span></h2>
+                    <p>Our journey begins in the high-altitude cloud forests, where hand-picked red cherries are selected at their peak ripeness.</p>
+                </div>
+                <!-- STEP 2 -->
+                <div class="journey-step" data-step="2">
+                    <span class="step-num">Step 02</span>
+                    <h2>To precise, artisanal <span>roasting...</span></h2>
+                    <p>Using slow-temperature curves, we bring the beans to their peak expression, unlocking deep, rich notes of cacao and warm spices.</p>
+                </div>
+                <!-- STEP 3 -->
+                <div class="journey-step" data-step="3">
+                    <span class="step-num">Step 03</span>
+                    <h2>To the perfect <span>pour.</span></h2>
+                    <p>Crafted by our master baristas who measure extraction down to the milligram, serving you pure emotional liquid gold.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: COFFEE PREPARATION (LIVE ACTION) -->
+    <section id="preparation">
+        <div class="container">
+            <div class="prep-grid">
+                <div class="prep-content reveal-fade-left">
+                    <span class="subtitle">The Craft</span>
+                    <h2 class="section-title">Freshly brewed <span>perfection.</span></h2>
+                    <p>Every cup is prepared in real-time with precision and passion. We do not rush. We do not compromise. We celebrate the luxury of time.</p>
+                    
+                    <div class="prep-highlights">
+                        <div class="highlight-box">
+                            <div class="highlight-icon">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M2 21h20v-2H2v2zm3.1-6.1c.9.9 2.2 1.4 3.4 1.4s2.5-.5 3.4-1.4c1.9-1.9 1.9-5.1 0-7l-6.8 7zm7.6-7.8l-1.4-1.4L18.4 2l1.4 1.4-7.1 7.2z"/></svg>
+                            </div>
+                            <div class="highlight-content">
+                                <h3>Freshly Ground Beans</h3>
+                                <p>Beans are ground just seconds before brewing to retain volatile aromatic compounds.</p>
+                            </div>
+                        </div>
+                        <div class="highlight-box">
+                            <div class="highlight-icon">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </div>
+                            <div class="highlight-content">
+                                <h3>Barista-Crafted Precision</h3>
+                                <p>Tamped at a consistent 30lbs pressure and pulled for exactly 28 seconds of golden extraction.</p>
+                            </div>
+                        </div>
+                        <div class="highlight-box">
+                            <div class="highlight-icon">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                            </div>
+                            <div class="highlight-content">
+                                <h3>Served at Perfect Temperature</h3>
+                                <p>Milk micro-foam structured precisely at 65°C for maximum sweet creaminess without burning.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="prep-visual reveal-fade-right">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" alt="Pouring latte art at Brew Magic Moments cafe">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: SIGNATURE MENU -->
+    <section id="menu">
+        <div class="container">
+            <div class="section-header">
+                <span class="subtitle">Signature Brews</span>
+                <h2 class="section-title">The Curated <span>Menu</span></h2>
+                <p class="section-intro-text">Explore our coffee masterpieces, roasted and extracted with absolute passion.</p>
+            </div>
+            
+            <div class="menu-grid">
+                <!-- Item 1: Espresso -->
+                <div class="menu-card reveal-card">
+                    <div class="menu-img-container">
+                        <img src="https://images.unsplash.com/photo-1510701114245-34006727d9db?auto=format&fit=crop&w=500&q=80" alt="Double Shot Espresso">
+                    </div>
+                    <h3>Double Shot Espresso</h3>
+                    <p>Rich, concentrated extraction with thick golden crema and deep hints of dark chocolate.</p>
+                    <div class="menu-price">$4.50</div>
+                </div>
+                <!-- Item 2: Cappuccino -->
+                <div class="menu-card reveal-card">
+                    <div class="menu-img-container">
+                        <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=500&q=80" alt="Classic Cappuccino">
+                    </div>
+                    <h3>Classic Cappuccino</h3>
+                    <p>Equal parts bold espresso, velvety steamed milk, and light cushion of micro-foam.</p>
+                    <div class="menu-price">$5.25</div>
+                </div>
+                <!-- Item 3: Latte -->
+                <div class="menu-card reveal-card">
+                    <div class="menu-img-container">
+                        <img src="https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?auto=format&fit=crop&w=500&q=80" alt="Velvet Latte">
+                    </div>
+                    <h3>Velvet Latte</h3>
+                    <p>Silky steamed milk poured gently over double espresso with intricate, customized latte art.</p>
+                    <div class="menu-price">$5.50</div>
+                </div>
+                <!-- Item 4: Cold Brew -->
+                <div class="menu-card reveal-card">
+                    <div class="menu-img-container">
+                        <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=500&q=80" alt="18-Hour Cold Brew">
+                    </div>
+                    <h3>18-Hour Cold Brew</h3>
+                    <p>Slowly steeped in cold alkaline water, yielding a smooth, chocolatey, low-acid nectar.</p>
+                    <div class="menu-price">$6.00</div>
+                </div>
+                <!-- Item 5: Mocha -->
+                <div class="menu-card reveal-card">
+                    <div class="menu-img-container">
+                        <img src="https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=500&q=80" alt="Luxury Mocha">
+                    </div>
+                    <h3>Luxury Mocha</h3>
+                    <p>Rich espresso blended with organic single-origin Peruvian cacao and steamed milk.</p>
+                    <div class="menu-price">$6.50</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: CAFÉ EXPERIENCE -->
+    <section id="experience">
+        <div class="container">
+            <div class="experience-grid">
+                <div class="experience-visual reveal-fade-left">
+                    <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=800&q=80" alt="Cozy cafe table with magazines and coffee cup">
+                </div>
+                
+                <div class="experience-content reveal-fade-right">
+                    <span class="subtitle">The Space</span>
+                    <h2 class="section-title">A space to <span>slow down.</span></h2>
+                    <p>Designed for comfort, creativity, and connection. A place where time feels softer and the aroma of coffee creates an sanctuary from the hectic world outside.</p>
+                    
+                    <div class="exp-highlights">
+                        <div class="exp-item">
+                            <span class="exp-icon">🌿</span>
+                            <div class="exp-text">
+                                <h3>Calm Ambience</h3>
+                                <p>Carefully curated acoustic playlists, gentle hums of roasting, and warm ambient light settings.</p>
+                            </div>
+                        </div>
+                        <div class="exp-item">
+                            <span class="exp-icon">✨</span>
+                            <div class="exp-text">
+                                <h3>Minimal Modern Interiors</h3>
+                                <p>Organic concrete textures, brushed gold fixtures, and rich walnut tables crafted by local artisans.</p>
+                            </div>
+                        </div>
+                        <div class="exp-item">
+                            <span class="exp-icon">🛋️</span>
+                            <div class="exp-text">
+                                <h3>Comfortable Seating Experience</h3>
+                                <p>Ergonomic linen lounges and workspace nooks equipped with fast fiber and individual charging points.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: GALLERY -->
+    <section id="gallery">
+        <div class="container">
+            <div class="section-header">
+                <span class="subtitle">Visual Storytelling</span>
+                <h2 class="section-title">Cinematic <span>Gallery</span></h2>
+                <p class="section-intro-text">Frames from our daily coffee life. Capturing the light, the steam, and the connection.</p>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item col-span-2 row-span-2 reveal-fade-up">
+                    <img src="https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=800&q=80" alt="Coffee beans sorting">
+                    <div class="gallery-overlay">
+                        <div class="gallery-info">
+                            <h4>Peak Roast Selection</h4>
+                            <p>Hand-sorting coffee cherries</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-fade-up" style="transition-delay: 0.1s;">
+                    <img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=600&q=80" alt="Beautiful latte espresso extraction">
+                    <div class="gallery-overlay">
+                        <div class="gallery-info">
+                            <h4>Golden Flow</h4>
+                            <p>Perfect espresso extraction</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-fade-up" style="transition-delay: 0.2s;">
+                    <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=600&q=80" alt="Fresh ground espresso aroma">
+                    <div class="gallery-overlay">
+                        <div class="gallery-info">
+                            <h4>Fresh Grind</h4>
+                            <p>Rich oils and aroma release</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item row-span-2 reveal-fade-up" style="transition-delay: 0.3s;">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" alt="Aesthetic warm drip coffee">
+                    <div class="gallery-overlay">
+                        <div class="gallery-info">
+                            <h4>Slow Drip V60</h4>
+                            <p>Pour-over artisanal brewing</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item col-span-2 reveal-fade-up" style="transition-delay: 0.4s;">
+                    <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=800&q=80" alt="Cozy seating area with coffee cup and laptops">
+                    <div class="gallery-overlay">
+                        <div class="gallery-info">
+                            <h4>The Creative Corner</h4>
+                            <p>Designed for writers and dreamers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: WHY CHOOSE US -->
+    <section id="why-us">
+        <div class="container">
+            <div class="section-header">
+                <span class="subtitle">The Brew Standard</span>
+                <h2 class="section-title">Why <span>Choose Us</span></h2>
+                <p class="section-intro-text">We go beyond flavor. We focus on details that elevate your morning routine into a premium memory.</p>
+            </div>
+            
+            <div class="why-grid">
+                <!-- Card 1 -->
+                <div class="why-card reveal-card">
+                    <div class="why-icon">☕</div>
+                    <h3>Premium Coffee Quality</h3>
+                    <p>Only the top 3% of Arabica beans globally make it into our signature roasting chamber.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="why-card reveal-card">
+                    <div class="why-icon">🌱</div>
+                    <h3>Ethically Sourced Beans</h3>
+                    <p>Direct fair-trade contracts ensuring local farming families thrive and practice sustainable forestry.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="why-card reveal-card">
+                    <div class="why-icon">👨‍🍳</div>
+                    <h3>Expert Baristas</h3>
+                    <p>Every barista undergoes 100+ hours of calibration to master temperature, grind velocity, and latte art.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="why-card reveal-card">
+                    <div class="why-icon">🏡</div>
+                    <h3>Cozy Ambience</h3>
+                    <p>Acoustic insulation, warm lighting design, and comfortable spaces to read, work, or dream.</p>
+                </div>
+                <!-- Card 5 -->
+                <div class="why-card reveal-card">
+                    <div class="why-icon">⚡</div>
+                    <h3>Fast Service</h3>
+                    <p>Order seamlessly from your table using our glassmorphic app interface and get it served in minutes.</p>
+                </div>
+                <!-- Card 6 -->
+                <div class="why-card reveal-card">
+                    <div class="why-icon">🎨</div>
+                    <h3>Aesthetic Café Experience</h3>
+                    <p>Every cup, plate, spoon, and wall texture is selected to offer a visually stunning, calm retreat.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: LOCATION / VISIT US -->
+    <section id="visit">
+        <div class="container">
+            <div class="visit-grid">
+                <div class="visit-details reveal-fade-left">
+                    <span class="subtitle">Join Us</span>
+                    <h2 class="section-title">Visit Our <span>Sanctuary</span></h2>
+                    
+                    <div class="visit-info-group">
+                        <h3>Address</h3>
+                        <p>420 Espresso Blvd, Suite 100<br>Metropolis, NY 10001</p>
+                    </div>
+                    
+                    <div class="visit-info-group">
+                        <h3>Opening Hours</h3>
+                        <p>Mon - Fri: 7:00 AM - 8:00 PM<br>Sat - Sun: 8:00 AM - 9:00 PM</p>
+                    </div>
+                    
+                    <div class="visit-info-group">
+                        <h3>Contact</h3>
+                        <p>hello@brewmagicmoments.com<br>+1 (555) 234-5678</p>
+                    </div>
+                    
+                    <div>
+                        <a href="https://maps.google.com" target="_blank" rel="noopener" class="btn-primary">Get Directions</a>
+                    </div>
+                </div>
+                
+                <div class="visit-map reveal-fade-right">
+                    <div class="map-bg" style="background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80')"></div>
+                    <div class="map-overlay">
+                        <div class="map-pin">📍</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: TESTIMONIALS -->
+    <section id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="subtitle">Shared Warmth</span>
+                <h2 class="section-title">Guest <span>Stories</span></h2>
+            </div>
+            
+            <div class="carousel-container reveal-fade-up">
+                <div class="testimonials-track" id="testimonials-track">
+                    <!-- Slide 1 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-quote">"Best coffee experience I’ve ever had. The attention to extraction variables is something you usually only see in science labs, but the atmosphere makes it feel like home."</p>
+                        <div class="testimonial-author">Sophia Thorne</div>
+                        <div class="testimonial-role">Design Director, Studio Muse</div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-quote">"The atmosphere is absolutely unmatched. The minimal glassmorphic elements, the smell of roasting espresso, and the quiet nooks make it my perfect creative writing hideout."</p>
+                        <div class="testimonial-author">Ethan Vance</div>
+                        <div class="testimonial-role">Novelist & Journalist</div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-quote">"It really feels like a second home. The baristas greet me by name, know my water-to-cacao ratios, and serve every brew with a smile that brightens my day."</p>
+                        <div class="testimonial-author">Amara Kincaid</div>
+                        <div class="testimonial-role">Tech Consultant</div>
+                    </div>
+                </div>
+                
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="prev-btn" aria-label="Previous testimonial">←</button>
+                    <button class="carousel-btn" id="next-btn" aria-label="Next testimonial">→</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11: FINAL CTA (CLOSING HERO) -->
+    <section id="final-cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title section-title">Experience coffee the way it was <span>meant to be.</span></h2>
+                <p class="cta-subtext">Join us at Brew Magic Moments. Discover a ritual, catch your breath, and savor the details.</p>
+                <div class="cta-buttons">
+                    <a href="#visit" class="btn-primary">Visit Our Café</a>
+                    <a href="#menu" class="btn-secondary">View Complete Menu</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h2>Brew <span>Magic</span> Moments</h2>
+                <p>A premium, cinematic coffee experience designed for comfort, creativity, and connection.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Experience</h4>
+                <ul class="footer-links">
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#story">Our Story</a></li>
+                    <li><a href="#journey">Journey</a></li>
+                    <li><a href="#menu">Menu</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Sanctuary</h4>
+                <ul class="footer-links">
+                    <li><a href="#experience">The Space</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#visit">Visit Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Accessibility</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Brew Magic Moments. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="Instagram">IG</a>
+                <a href="#" aria-label="Facebook">FB</a>
+                <a href="#" aria-label="Pinterest">PI</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GSAP CORE & SCROLLTRIGGER CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
