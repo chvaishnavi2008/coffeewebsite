@@ -541,6 +541,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    /* --- SEED-TO-CUP ROADMAP ANIMATIONS --- */
+    function initRoadmapTimeline() {
+        const progressLine = document.getElementById("roadmap-progress-line");
+        const nodes = document.querySelectorAll(".roadmap-node");
+        if (!progressLine || nodes.length === 0) return;
+
+        // Animate vertical connecting progress line on scroll
+        gsap.to(progressLine, {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#roadmap .roadmap-timeline",
+                start: "top 45%",
+                end: "bottom 55%",
+                scrub: true
+            }
+        });
+
+        // Trigger active highlights on node elements when they scroll to middle-height of screen
+        nodes.forEach(node => {
+            ScrollTrigger.create({
+                trigger: node,
+                start: "top 55%",
+                end: "bottom 45%",
+                onEnter: () => node.classList.add("active"),
+                onLeaveBack: () => node.classList.remove("active"),
+                onEnterBack: () => node.classList.add("active")
+            });
+        });
+    }
+
     /* --- MAIN SETUP INITIATOR --- */
     async function init() {
         // 1. Preload image assets
@@ -561,12 +592,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // 6. Mobile navigation setup
         initMobileMenu();
 
-        // 7. Phase 2 Premium Features
+        // 7. Phase 2 & 3 Premium Features
         initCustomCursor();
         initAudioPlayer();
         initMenuFiltering();
         initBookingModal();
         initNewsletterForm();
+        initRoadmapTimeline();
     }
 
     init();
