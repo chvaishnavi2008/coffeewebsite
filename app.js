@@ -36,31 +36,26 @@ document.addEventListener("DOMContentLoaded", () => {
     
     function preloadImages() {
         return new Promise((resolve) => {
-            for (let i = 1; i <= TOTAL_FRAMES; i++) {
-                const img = new Image();
-                img.onload = () => {
-                    loadedCount++;
-                    const progress = Math.round((loadedCount / TOTAL_FRAMES) * 100);
-                    
-                    // Update loader UI
-                    loaderBar.style.width = `${progress}%`;
-                    loaderPercent.textContent = `${progress}%`;
-                    
-                    if (loadedCount === TOTAL_FRAMES) {
-                        setTimeout(() => {
-                            preloader.classList.add("loaded");
-                            resolve();
-                        }, 500); // Short delay for visual smoothness
-                    }
-                };
-                img.onerror = () => {
-                    // Fallback if image fails to load (increment count to not block user)
-                    loadedCount++;
-                    if (loadedCount === TOTAL_FRAMES) {
+            const handleLoadOrError = () => {
+                loadedCount++;
+                const progress = Math.round((loadedCount / TOTAL_FRAMES) * 100);
+                
+                // Update loader UI
+                loaderBar.style.width = `${progress}%`;
+                loaderPercent.textContent = `${progress}%`;
+                
+                if (loadedCount === TOTAL_FRAMES) {
+                    setTimeout(() => {
                         preloader.classList.add("loaded");
                         resolve();
-                    }
-                };
+                    }, 500);
+                }
+            };
+
+            for (let i = 1; i <= TOTAL_FRAMES; i++) {
+                const img = new Image();
+                img.onload = handleLoadOrError;
+                img.onerror = handleLoadOrError;
                 img.src = getFramePath(i);
                 images.push(img);
             }
