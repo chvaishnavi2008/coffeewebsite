@@ -36,8 +36,14 @@
             <li><a href="#gallery" class="nav-link">Gallery</a></li>
             <li><a href="#visit" class="nav-link">Visit</a></li>
         </ul>
-        <div class="nav-cta">
-            <button class="btn-primary" onclick="alert('Order Feature coming soon!')">Order Coffee</button>
+        <div class="nav-cta" style="display: flex; gap: 1.5rem; align-items: center;">
+            <button id="audio-toggle" class="audio-btn" aria-label="Toggle background music">
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+            </button>
+            <button class="btn-primary" id="open-booking">Book a Table</button>
         </div>
         <button class="mobile-nav-toggle" id="mobile-toggle" aria-label="Toggle menu">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -189,9 +195,16 @@
                 <p class="section-intro-text">Explore our coffee masterpieces, roasted and extracted with absolute passion.</p>
             </div>
             
+            <div class="menu-filters reveal-fade-up">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="hot">Hot Brews</button>
+                <button class="filter-btn" data-filter="cold">Cold Brews</button>
+                <button class="filter-btn" data-filter="specials">Specials</button>
+            </div>
+            
             <div class="menu-grid">
                 <!-- Item 1: Espresso -->
-                <div class="menu-card reveal-card">
+                <div class="menu-card reveal-card" data-category="hot">
                     <div class="menu-img-container">
                         <img src="https://images.unsplash.com/photo-1510701114245-34006727d9db?auto=format&fit=crop&w=500&q=80" alt="Double Shot Espresso">
                     </div>
@@ -200,7 +213,7 @@
                     <div class="menu-price">$4.50</div>
                 </div>
                 <!-- Item 2: Cappuccino -->
-                <div class="menu-card reveal-card">
+                <div class="menu-card reveal-card" data-category="hot">
                     <div class="menu-img-container">
                         <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=500&q=80" alt="Classic Cappuccino">
                     </div>
@@ -209,7 +222,7 @@
                     <div class="menu-price">$5.25</div>
                 </div>
                 <!-- Item 3: Latte -->
-                <div class="menu-card reveal-card">
+                <div class="menu-card reveal-card" data-category="hot">
                     <div class="menu-img-container">
                         <img src="https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?auto=format&fit=crop&w=500&q=80" alt="Velvet Latte">
                     </div>
@@ -218,7 +231,7 @@
                     <div class="menu-price">$5.50</div>
                 </div>
                 <!-- Item 4: Cold Brew -->
-                <div class="menu-card reveal-card">
+                <div class="menu-card reveal-card" data-category="cold">
                     <div class="menu-img-container">
                         <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=500&q=80" alt="18-Hour Cold Brew">
                     </div>
@@ -227,7 +240,7 @@
                     <div class="menu-price">$6.00</div>
                 </div>
                 <!-- Item 5: Mocha -->
-                <div class="menu-card reveal-card">
+                <div class="menu-card reveal-card" data-category="specials">
                     <div class="menu-img-container">
                         <img src="https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=500&q=80" alt="Luxury Mocha">
                     </div>
@@ -487,7 +500,12 @@
         <div class="footer-grid">
             <div class="footer-brand">
                 <h2>Brew <span>Magic</span> Moments</h2>
-                <p>A premium, cinematic coffee experience designed for comfort, creativity, and connection.</p>
+                <p style="margin-bottom: 1.5rem;">A premium, cinematic coffee experience designed for comfort, creativity, and connection.</p>
+                <form id="newsletter-form" class="newsletter-form">
+                    <input type="email" placeholder="Join the Brew Club (Email)" required aria-label="Email address">
+                    <button type="submit" aria-label="Subscribe">➔</button>
+                </form>
+                <div id="newsletter-success" class="newsletter-success">Welcome to the Club! ✨</div>
             </div>
             <div class="footer-col">
                 <h4>Experience</h4>
@@ -524,6 +542,59 @@
             </div>
         </div>
     </footer>
+
+    <!-- BOOKING MODAL -->
+    <div id="booking-overlay" class="booking-overlay">
+        <div class="booking-modal">
+            <button class="close-booking" id="close-booking" aria-label="Close reservation modal">&times;</button>
+            <div class="booking-content-wrap">
+                <div class="booking-form-side" id="booking-form-side">
+                    <h2>Reserve a <span>Sanctuary</span></h2>
+                    <p>Select your time of comfort and connection. We will prepare your space.</p>
+                    <form id="booking-form">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="book-name">Name</label>
+                                <input type="text" id="book-name" required placeholder="Your Name">
+                            </div>
+                            <div class="input-group">
+                                <label for="book-guests">Guests</label>
+                                <select id="book-guests" required>
+                                    <option value="1">1 Person</option>
+                                    <option value="2" selected>2 People</option>
+                                    <option value="4">4 People</option>
+                                    <option value="6">6+ People (Group)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="book-date">Date</label>
+                                <input type="date" id="book-date" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="book-time">Time</label>
+                                <input type="time" id="book-time" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.5rem;">Confirm Reservation</button>
+                    </form>
+                </div>
+                <div class="booking-success-side" id="booking-success-side">
+                    <div class="success-icon">✓</div>
+                    <h2>Table Reserved</h2>
+                    <p>Your sanctuary is secured. We look forward to crafting magic moments for you.</p>
+                    <div class="success-details">
+                        <span id="summary-date">May 26, 2026</span> at <span id="summary-time">10:00 AM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CURSOR -->
+    <div id="custom-cursor-dot"></div>
+    <div id="custom-cursor-ring"></div>
 
     <!-- GSAP CORE & SCROLLTRIGGER CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
