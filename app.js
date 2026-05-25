@@ -346,6 +346,201 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /* --- CUSTOM CURSOR --- */
+    function initCustomCursor() {
+        const dot = document.getElementById("custom-cursor-dot");
+        const ring = document.getElementById("custom-cursor-ring");
+        if (!dot || !ring) return;
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let ringX = 0;
+        let ringY = 0;
+
+        window.addEventListener("mousemove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function tick() {
+            // Instant tracking for center dot
+            dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+            
+            // Lerp tracking (inertia/lag) for outer ring
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+            
+            requestAnimationFrame(tick);
+        }
+        tick();
+
+        // Hover expansions using event delegation
+        document.addEventListener("mouseover", (e) => {
+            const target = e.target.closest("a, button, input, select, textarea, .gallery-item, .carousel-btn");
+            if (target) {
+                ring.classList.add("hovering");
+            } else {
+                ring.classList.remove("hovering");
+            }
+        });
+    }
+
+    /* --- AMBIENT AUDIO PLAYER --- */
+    function initAudioPlayer() {
+        const audioToggle = document.getElementById("audio-toggle");
+        if (!audioToggle) return;
+
+        // Soft, relaxing royalty-free ambient lofi track from Mixkit
+        const audio = new Audio("https://assets.mixkit.co/music/preview/mixkit-lo-fi-night-walk-357.mp3");
+        audio.loop = true;
+        audio.volume = 0.25;
+
+        audioToggle.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    audioToggle.classList.add("playing");
+                }).catch(err => {
+                    console.log("Audio playback blocked or failed:", err);
+                });
+            } else {
+                audio.pause();
+                audioToggle.classList.remove("playing");
+            }
+        });
+    }
+
+    /* --- MENU CATEGORY FILTERING --- */
+    function initMenuFiltering() {
+        const filterBtns = document.querySelectorAll(".filter-btn");
+        const menuCards = document.querySelectorAll(".menu-card");
+        if (filterBtns.length === 0 || menuCards.length === 0) return;
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                filterBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                const category = btn.getAttribute("data-filter");
+
+                // Fade out current cards
+                gsap.to(menuCards, {
+                    opacity: 0,
+                    scale: 0.95,
+                    duration: 0.3,
+                    stagger: 0.03,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        const visibleCards = [];
+                        menuCards.forEach(card => {
+                            const cardCat = card.getAttribute("data-category");
+                            if (category === "all" || cardCat === category) {
+                                card.style.display = "block";
+                                visibleCards.push(card);
+                            } else {
+                                card.style.display = "none";
+                            }
+                        });
+
+                        // Fade in visible cards
+                        if (visibleCards.length > 0) {
+                            gsap.fromTo(visibleCards,
+                                { opacity: 0, scale: 0.95 },
+                                { opacity: 1, scale: 1, duration: 0.4, stagger: 0.05, ease: "power2.out", clearProps: "transform" }
+                            );
+                        }
+                    }
+                });
+            });
+        });
+    }
+
+    /* --- RESERVATION MODAL --- */
+    function initBookingModal() {
+        const openBtn = document.getElementById("open-booking");
+        const overlay = document.getElementById("booking-overlay");
+        const closeBtn = document.getElementById("close-booking");
+        const form = document.getElementById("booking-form");
+        const formSide = document.getElementById("booking-form-side");
+        const successSide = document.getElementById("booking-success-side");
+
+        if (!openBtn || !overlay || !closeBtn || !form) return;
+
+        // Open
+        openBtn.addEventListener("click", () => {
+            overlay.classList.add("active");
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById("book-date").value = tomorrow.toISOString().split("T")[0];
+            document.getElementById("book-time").value = "18:00";
+        });
+
+        // Close functions
+        const closeModal = () => {
+            overlay.classList.remove("active");
+            // Reset modal side panels after transition completes
+            setTimeout(() => {
+                formSide.classList.remove("inactive");
+                successSide.classList.remove("active");
+                form.reset();
+            }, 500);
+        };
+
+        closeBtn.addEventListener("click", closeModal);
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closeModal();
+        });
+
+        // Form Submission
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            const rawDate = document.getElementById("book-date").value;
+            const rawTime = document.getElementById("book-time").value;
+
+            // Format date & time beautifully
+            const dateObj = new Date(rawDate + "T" + rawTime);
+            const formattedDate = dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+            const formattedTime = dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+
+            document.getElementById("summary-date").textContent = formattedDate;
+            document.getElementById("summary-time").textContent = formattedTime;
+
+            // Trigger animations
+            formSide.classList.add("inactive");
+            successSide.classList.add("active");
+        });
+    }
+
+    /* --- NEWSLETTER FOOTER FORM --- */
+    function initNewsletterForm() {
+        const form = document.getElementById("newsletter-form");
+        const successMsg = document.getElementById("newsletter-success");
+        if (!form || !successMsg) return;
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const input = form.querySelector("input");
+            const btn = form.querySelector("button");
+
+            // Animate submission effect
+            btn.style.pointerEvents = "none";
+            btn.textContent = "✓";
+            
+            gsap.to(input, {
+                borderColor: "var(--accent-gold)",
+                opacity: 0.7,
+                duration: 0.4
+            });
+
+            setTimeout(() => {
+                form.style.display = "none";
+                successMsg.style.display = "block";
+            }, 800);
+        });
+    }
+
     /* --- MAIN SETUP INITIATOR --- */
     async function init() {
         // 1. Preload image assets
@@ -365,6 +560,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 6. Mobile navigation setup
         initMobileMenu();
+
+        // 7. Phase 2 Premium Features
+        initCustomCursor();
+        initAudioPlayer();
+        initMenuFiltering();
+        initBookingModal();
+        initNewsletterForm();
     }
 
     init();
