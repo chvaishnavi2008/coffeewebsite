@@ -775,6 +775,180 @@
             </div>
         </div>
     </div>
+    <!-- ACTIVE TABLE SESSION PILL -->
+    <div id="active-table-pill" class="active-table-pill">
+        <span class="active-indicator"></span>
+        <span class="active-table-text">Dining at Table <span id="active-table-number">X</span></span>
+        <button id="btn-exit-table" class="btn-exit-table" aria-label="Exit ordering session" title="Exit Session">&times;</button>
+    </div>
+
+    <!-- CART DRAWER OVERLAY -->
+    <div id="cart-drawer-overlay" class="cart-drawer-overlay">
+        <div class="cart-drawer">
+            <button class="close-cart" id="close-cart" aria-label="Close cart">&times;</button>
+            <div class="cart-header">
+                <h2>Table <span>Order</span></h2>
+                <span class="active-table-label" id="cart-table-label">Table X</span>
+            </div>
+            
+            <div class="cart-items-container" id="cart-items">
+                <div class="empty-cart-msg">Your cart is empty. Tap the "+" on menu items to add them!</div>
+            </div>
+            
+            <div class="cart-footer">
+                <div class="notes-group">
+                    <label for="cart-notes">Barista Notes / Requests</label>
+                    <textarea id="cart-notes" placeholder="e.g. Oat milk, extra hot, no sugar..." rows="2"></textarea>
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (8%)</span>
+                        <span id="cart-tax">$0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="cart-total">$0.00</span>
+                    </div>
+                </div>
+                
+                <button id="place-order-btn" class="btn-primary" style="width: 100%; margin-top: 1rem;">Confirm Table Order</button>
+            </div>
+            
+            <!-- Simulated Ordering Stepper -->
+            <div class="checkout-stepper-overlay" id="checkout-stepper">
+                <div class="stepper-content">
+                    <div class="stepper-visual">
+                        <div class="stepper-loader-container">
+                            <div class="loading-cacao">☕</div>
+                            <svg viewBox="0 0 100 100" class="stepper-spinner">
+                                <circle cx="50" cy="50" r="45" />
+                            </svg>
+                        </div>
+                        <div class="success-checkmark">✓</div>
+                    </div>
+                    
+                    <h3 id="stepper-title">Sending to Barista</h3>
+                    <p id="stepper-desc">Establishing kitchen connection...</p>
+                    
+                    <div class="stepper-steps">
+                        <div class="step-node active" id="step-node-1">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Sending</span>
+                        </div>
+                        <div class="step-node" id="step-node-2">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Accepting</span>
+                        </div>
+                        <div class="step-node" id="step-node-3">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Preparing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR MENU GENERATOR MODAL -->
+    <div id="qr-modal-overlay" class="qr-modal-overlay">
+        <div class="qr-modal">
+            <button class="close-qr-modal" id="close-qr-modal" aria-label="Close QR dashboard">&times;</button>
+            <div class="qr-modal-content">
+                <div class="qr-config-side">
+                    <h2>QR Menu <span>Dashboard</span></h2>
+                    <p>Generate, download, and test table-specific QR codes for Brew Magic Moments.</p>
+                    
+                    <div class="input-group" style="margin-top: 1.5rem;">
+                        <label for="qr-table-select">Select Table Number</label>
+                        <select id="qr-table-select">
+                            <option value="1">Table 1</option>
+                            <option value="2">Table 2</option>
+                            <option value="3">Table 3</option>
+                            <option value="4">Table 4</option>
+                            <option value="5" selected>Table 5</option>
+                            <option value="6">Table 6</option>
+                            <option value="7">Table 7</option>
+                            <option value="8">Table 8</option>
+                            <option value="9">Table 9</option>
+                            <option value="10">Table 10</option>
+                            <option value="11">Table 11</option>
+                            <option value="12">Table 12</option>
+                        </select>
+                   </div>
+                    
+                    <div class="qr-actions-grid" style="margin-top: 2rem;">
+                        <button id="btn-simulate-scan" class="btn-primary" style="width: 100%; margin-bottom: 0.75rem;">Simulate Table Scan</button>
+                        <button id="btn-download-qr" class="btn-secondary" style="width: 100%; margin-bottom: 0.75rem;">Download QR PNG</button>
+                        <button id="btn-print-qr" class="btn-secondary" style="width: 100%;">Print Table Card</button>
+                    </div>
+                </div>
+                
+                <div class="qr-preview-side">
+                    <!-- Printable Card Frame -->
+                    <div class="qr-print-card" id="qr-print-card">
+                        <div class="card-cafe-header">
+                            <div class="card-brand">Brew <span>Magic</span> Moments</div>
+                            <div class="card-divider"></div>
+                        </div>
+                        
+                        <div class="qr-code-wrapper">
+                            <div id="qr-code-element"></div>
+                        </div>
+                        
+                        <div class="card-cafe-footer">
+                            <h3 id="qr-card-table-num">Table 5</h3>
+                            <p>Scan to Order Directly from your Phone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE SELECTOR PROMPT -->
+    <div id="table-select-overlay" class="table-select-overlay">
+        <div class="table-select-modal">
+            <button class="close-table-select" id="close-table-select" aria-label="Close table selector">&times;</button>
+            <h2>Start <span>Table Session</span></h2>
+            <p>To order fresh brews directly to your table, please enter or select your table number below:</p>
+            
+            <form id="table-select-form" style="margin-top: 1.5rem;">
+                <div class="input-group">
+                    <label for="manual-table-num">Table Number (1 - 50)</label>
+                    <input type="number" id="manual-table-num" min="1" max="50" required placeholder="e.g. 5">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.5rem;">Start Ordering</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FLOATING ACTION BUTTONS -->
+    <div class="floating-actions-container">
+        <button id="floating-qr-hub" class="floating-btn qr-hub-btn" aria-label="QR Code Generator Hub" title="QR Code Generator">
+            <span class="floating-icon">🎛️</span>
+        </button>
+        <button id="floating-cart" class="floating-btn cart-btn" aria-label="Open ordering cart" title="Open Cart">
+            <span class="floating-icon">🛒</span>
+            <span class="cart-badge" id="cart-badge-count">0</span>
+        </button>
+    </div>
+
+    <!-- ORDER STATUS TRACKER -->
+    <div id="order-status-widget" class="order-status-widget">
+        <div class="status-widget-content">
+            <div class="status-icon-glow">☕</div>
+            <div class="status-text-wrap">
+                <h4 id="order-widget-title">Order #BMM-1234</h4>
+                <p id="order-widget-timer">Status: Preparing (5:00)</p>
+            </div>
+            <button class="close-status-widget" id="close-status-widget" aria-label="Dismiss status">&times;</button>
+        </div>
+    </div>
 
     <!-- CUSTOM CURSOR -->
     <div id="custom-cursor-dot"></div>
@@ -783,6 +957,8 @@
     <!-- GSAP CORE & SCROLLTRIGGER CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- QRCODE GENERATOR LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
