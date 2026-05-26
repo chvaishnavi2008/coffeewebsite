@@ -496,6 +496,8 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
             
+            const bookName = document.getElementById("book-name").value.trim();
+            const bookGuests = document.getElementById("book-guests").value;
             const rawDate = document.getElementById("book-date").value;
             const rawTime = document.getElementById("book-time").value;
 
@@ -506,6 +508,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.getElementById("summary-date").textContent = formattedDate;
             document.getElementById("summary-time").textContent = formattedTime;
+
+            // Save reservation to shared list in localStorage
+            const globalReservations = JSON.parse(localStorage.getItem("bmm_global_reservations") || "[]");
+            const newRes = {
+                id: `RES-${Math.floor(1000 + Math.random() * 9000)}`,
+                name: bookName,
+                guests: bookGuests,
+                date: rawDate,
+                time: rawTime,
+                formattedDate: formattedDate,
+                formattedTime: formattedTime,
+                status: "pending",
+                timestamp: Date.now()
+            };
+            globalReservations.push(newRes);
+            localStorage.setItem("bmm_global_reservations", JSON.stringify(globalReservations));
+
+            // Trigger storage sync event for real-time update in staff tab
+            window.dispatchEvent(new Event("storage"));
 
             // Trigger animations
             formSide.classList.add("inactive");
@@ -586,10 +607,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const cachedTable = localStorage.getItem("bmm_active_table");
         
         if (urlTable) {
-            currentTable = parseInt(urlTable, 10);
+            if (urlTable.toLowerCase() === "takeaway") {
+                currentTable = "Takeaway";
+            } else {
+                currentTable = parseInt(urlTable, 10);
+            }
             localStorage.setItem("bmm_active_table", currentTable);
         } else if (cachedTable) {
-            currentTable = parseInt(cachedTable, 10);
+            if (cachedTable === "Takeaway") {
+                currentTable = "Takeaway";
+            } else {
+                currentTable = parseInt(cachedTable, 10);
+            }
         }
 
         // Dynamically inject "Add to Order" buttons on all menu cards
@@ -736,11 +765,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
+
+        // Takeaway select button
+        const btnTakeawaySelect = document.getElementById("btn-takeaway-select");
+        if (btnTakeawaySelect) {
+            btnTakeawaySelect.addEventListener("click", () => {
+                currentTable = "Takeaway";
+                localStorage.setItem("bmm_active_table", currentTable);
+                activateTableSession(currentTable);
+                tableSelectOverlay.classList.remove("active");
+                
+                // Open cart after takeaway is set
+                setTimeout(() => {
+                    cartOverlay.classList.add("active");
+                    renderCart();
+                }, 300);
+            });
+        }
         
         // Exit Table Session
         if (btnExitTable) {
             btnExitTable.addEventListener("click", () => {
-                if (confirm("Are you sure you want to end your dining session at Table " + currentTable + "?")) {
+                const msg = currentTable === "Takeaway" 
+                    ? "Are you sure you want to end your Take-away session?"
+                    : "Are you sure you want to end your dining session at Table " + currentTable + "?";
+                if (confirm(msg)) {
                     deactivateTableSession();
                 }
             });
@@ -800,15 +849,26 @@ document.addEventListener("DOMContentLoaded", () => {
         // Show Active Pill
         const activePill = document.getElementById("active-table-pill");
         const activePillNum = document.getElementById("active-table-number");
-        if (activePill && activePillNum) {
-            activePillNum.textContent = tableNum;
+        if (activePill) {
+            const activeText = activePill.querySelector(".active-table-text");
+            if (activeText) {
+                if (tableNum === "Takeaway") {
+                    activeText.innerHTML = "Ordering as <span>Take-away 🛍️</span>";
+                } else {
+                    activeText.innerHTML = `Dining at Table <span id="active-table-number">${tableNum}</span>`;
+                }
+            }
             activePill.classList.add("active");
         }
         
         // Update labels
         const cartLabel = document.getElementById("cart-table-label");
         if (cartLabel) {
-            cartLabel.textContent = `Table ${tableNum}`;
+            if (tableNum === "Takeaway") {
+                cartLabel.textContent = "Take-away Order";
+            } else {
+                cartLabel.textContent = `Table ${tableNum}`;
+            }
         }
         
         // Load table cart from localStorage
@@ -1130,7 +1190,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 node3.className = "step-node completed";
                 stepper.classList.add("success");
                 title.textContent = "Order Confirmed!";
-                desc.textContent = `Order placed for Table ${currentTable}! Estimated delivery: 5 minutes.`;
+                const isTakeaway = currentTable === "Takeaway";
+                desc.textContent = isTakeaway
+                    ? "Take-away order placed successfully! Estimated pickup: 5-10 minutes."
+                    : `Order placed for Table ${currentTable}! Estimated delivery: 5 minutes.`;
                 
                 const orderId = `BMM-${Math.floor(1000 + Math.random() * 9000)}`;
                 const notesVal = document.getElementById("cart-notes").value.trim();
