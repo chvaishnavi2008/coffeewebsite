@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew Magic Moments | Barista Terminal</title>
+    <meta name="description" content="Barista terminal for managing active table orders.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body.staff-body {
+            background-color: var(--bg-main);
+            min-height: 100vh;
+            color: var(--cream);
+            font-family: var(--font-body);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .staff-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: var(--border-glass-hover);
+            margin-bottom: 2.5rem;
+        }
+
+        .staff-logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .staff-logo span {
+            color: var(--accent-gold);
+        }
+
+        .staff-profile {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .staff-status-badge {
+            background: rgba(93, 200, 123, 0.1);
+            color: #5dc87b;
+            border: 1px solid rgba(93, 200, 123, 0.2);
+            padding: 0.4rem 0.85rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .staff-status-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #5dc87b;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #5dc87b;
+            display: inline-block;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: var(--border-glass);
+            color: var(--cream-muted);
+            padding: 0.45rem 1rem;
+            border-radius: 4px;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: var(--transition-quick);
+        }
+        .btn-logout:hover {
+            color: #c85d5d;
+            border-color: rgba(200, 93, 93, 0.25);
+            background: rgba(200, 93, 93, 0.05);
+        }
+
+        /* Stats Bar */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: 8px;
+            padding: 1.5rem;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-card h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--cream-muted);
+        }
+
+        .stat-card .stat-val {
+            font-size: 2.2rem;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            color: var(--white);
+        }
+        .stat-card .stat-val span {
+            color: var(--accent-gold);
+        }
+
+        /* Main Workspace split: Orders vs Quick Actions */
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 2rem;
+            flex-grow: 1;
+        }
+
+        /* Order grid board */
+        .orders-board-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .order-ticket {
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: 12px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition-quick);
+        }
+
+        /* Status-specific card borders */
+        .order-ticket.status-pending {
+            border-left: 4px solid #c85d5d;
+        }
+        .order-ticket.status-preparing {
+            border-left: 4px solid #c8a45d;
+        }
+        .order-ticket.status-ready {
+            border-left: 4px solid #5dc87b;
+        }
+
+        .order-ticket:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            border-color: rgba(200, 164, 93, 0.2);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .ticket-table {
+            font-size: 1.15rem;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            color: var(--white);
+        }
+        .ticket-table span {
+            color: var(--accent-gold);
+        }
+
+        .ticket-id {
+            font-size: 0.75rem;
+            color: var(--cream-muted);
+            font-family: var(--font-heading);
+            margin-top: 0.2rem;
+        }
+
+        .ticket-timer {
+            font-size: 0.75rem;
+            color: var(--cream-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: var(--border-glass);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .ticket-items {
+            flex-grow: 1;
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .ticket-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--cream);
+        }
+        .ticket-item-name {
+            font-weight: 500;
+        }
+        .ticket-item-qty {
+            color: var(--accent-gold);
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .ticket-notes {
+            background: rgba(200, 164, 93, 0.04);
+            border: 1px dashed rgba(200, 164, 93, 0.15);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--cream-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .ticket-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .ticket-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            font-weight: 700;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        .ticket-total-row span:last-child {
+            color: var(--accent-gold);
+            font-family: var(--font-heading);
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-ticket {
+            flex-grow: 1;
+            padding: 0.65rem;
+            font-size: 0.75rem;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition-quick);
+            text-align: center;
+        }
+
+        .btn-ticket-primary {
+            background: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            color: var(--bg-main);
+        }
+        .btn-ticket-primary:hover {
+            background: transparent;
+            color: var(--accent-gold);
+        }
+
+        .btn-ticket-secondary {
+            background: transparent;
+            border: var(--border-glass-hover);
+            color: var(--cream);
+        }
+        .btn-ticket-secondary:hover {
+            border-color: var(--white);
+            color: var(--white);
+        }
+
+        .btn-ticket-danger {
+            background: transparent;
+            border: 1px solid rgba(200, 93, 93, 0.2);
+            color: rgba(200, 93, 93, 0.7);
+            flex-grow: 0;
+            width: 38px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-ticket-danger:hover {
+            background: rgba(200, 93, 93, 0.08);
+            border-color: #c85d5d;
+            color: #c85d5d;
+        }
+
+        /* Sidebar Control Center */
+        .sidebar-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .barista-panel {
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: 8px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .no-orders-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 5rem 0;
+            color: var(--cream-muted);
+            font-size: 1rem;
+            border: 1px dashed rgba(255,255,255,0.05);
+            border-radius: 12px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-section {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body class="staff-body">
+
+    <!-- Top Navigation Header -->
+    <header class="staff-nav">
+        <div class="staff-logo">Brew <span>Magic</span> Moments</div>
+        <div class="staff-profile">
+            <div class="staff-status-badge">
+                <span class="staff-status-dot"></span> Active Terminal
+            </div>
+            <button id="btn-logout" class="btn-logout">Logout</button>
+        </div>
+    </header>
+
+    <!-- Metrics Stats Row -->
+    <section class="stats-grid">
+        <div class="stat-card">
+            <h3>Active Queue</h3>
+            <div class="stat-val" id="stat-active-count">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Pending</h3>
+            <div class="stat-val" id="stat-pending-count">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Served Today</h3>
+            <div class="stat-val" id="stat-served-count"><span>0</span></div>
+        </div>
+        <div class="stat-card">
+            <h3>Revenue (Est)</h3>
+            <div class="stat-val" id="stat-revenue"><span>$</span>0.00</div>
+        </div>
+    </section>
+
+    <!-- Main Workspace Split -->
+    <main class="dashboard-content">
+        
+        <!-- Live Order Tickets Panel -->
+        <section class="orders-board-section">
+            <h2>Active Table Orders</h2>
+            <div class="orders-grid" id="orders-grid-element">
+                <div class="no-orders-msg">
+                    ☕ Waiting for orders...<br>
+                    <span style="font-size:0.8rem; opacity:0.65;">When customers confirm their orders on table pages, they will instantly chime and render here.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar Simulator & Settings -->
+        <section class="sidebar-section">
+            <h2>Terminal Console</h2>
+            <div class="barista-panel">
+                <p style="font-size:0.8rem; line-height:1.5; color:var(--cream-muted);">
+                    Use this panel to simulate incoming customer table orders to verify the live sync operations.
+                </p>
+                <button id="btn-simulate-order" class="btn-primary" style="width: 100%;">Simulate Client Order</button>
+                <button id="btn-clear-archive" class="btn-secondary" style="width: 100%;">Reset Archive Stats</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripting Dashboard Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Check auth state (must have logged in or we redirect, but since it's client demo we let it be)
+            const btnLogout = document.getElementById("btn-logout");
+            btnLogout.addEventListener("click", () => {
+                window.location.href = "login.html";
+            });
+
+            // State variables
+            let ordersList = [];
+            let servedCount = parseInt(localStorage.getItem("bmm_served_count") || "0", 10);
+            let archivedRevenue = parseFloat(localStorage.getItem("bmm_archived_revenue") || "0.00");
+
+            // Element binds
+            const ordersGrid = document.getElementById("orders-grid-element");
+            const btnSimulate = document.getElementById("btn-simulate-order");
+            const btnClearArchive = document.getElementById("btn-clear-archive");
+            
+            const countActive = document.getElementById("stat-active-count");
+            const countPending = document.getElementById("stat-pending-count");
+            const countServed = document.getElementById("stat-served-count");
+            const revenueVal = document.getElementById("stat-revenue");
+
+            // Setup audio chime
+            function playNewOrderSound() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = ctx.currentTime;
+                    
+                    const playBeep = (freq, startTime, duration) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        
+                        osc.type = "sine";
+                        osc.frequency.setValueAtTime(freq, startTime);
+                        
+                        gain.gain.setValueAtTime(0, startTime);
+                        gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+                        
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    };
+                    
+                    playBeep(587.33, now, 0.15); // D5
+                    playBeep(880.00, now + 0.12, 0.25); // A5
+                } catch (err) {
+                    console.log("AudioContext blocked or failed:", err);
+                }
+            }
+
+            // Sync from localStorage
+            function fetchOrders() {
+                const storedOrders = localStorage.getItem("bmm_global_orders");
+                const parsed = storedOrders ? JSON.parse(storedOrders) : [];
+                
+                // If new order arrived, chime!
+                if (parsed.length > ordersList.length) {
+                    // Detect if the new item is actually new or just updated
+                    const currentIds = ordersList.map(o => o.id);
+                    const hasNew = parsed.some(o => !currentIds.includes(o.id));
+                    if (hasNew) {
+                        playNewOrderSound();
+                    }
+                }
+                
+                ordersList = parsed;
+                renderOrdersBoard();
+                renderMetrics();
+            }
+
+            // Save orders to localStorage
+            function saveOrders() {
+                localStorage.setItem("bmm_global_orders", JSON.stringify(ordersList));
+                // Fire custom storage event locally so this tab updates too
+                window.dispatchEvent(new Event("storage"));
+            }
+
+            function renderMetrics() {
+                const activeCount = ordersList.filter(o => o.status !== "completed").length;
+                const pendingCount = ordersList.filter(o => o.status === "pending").length;
+                
+                countActive.textContent = activeCount;
+                countPending.textContent = pendingCount;
+                countServed.innerHTML = `<span>${servedCount}</span>`;
+                revenueVal.innerHTML = `<span>$</span>${archivedRevenue.toFixed(2)}`;
+            }
+
+            function renderOrdersBoard() {
+                ordersGrid.innerHTML = "";
+                const activeOrders = ordersList.filter(o => o.status !== "completed");
+                
+                if (activeOrders.length === 0) {
+                    ordersGrid.innerHTML = `
+                        <div class="no-orders-msg">
+                            ☕ Waiting for orders...<br>
+                            <span style="font-size:0.8rem; opacity:0.65;">When customers confirm their orders on table pages, they will instantly chime and render here.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Sort orders by timestamp (oldest first for FIFO preparation)
+                activeOrders.sort((a, b) => a.timestamp - b.timestamp);
+
+                activeOrders.forEach(order => {
+                    const ticket = document.createElement("div");
+                    ticket.className = `order-ticket status-${order.status}`;
+                    
+                    // Time elapsed counter
+                    const minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
+                    const timerText = minutesElapsed === 0 ? "New" : `${minutesElapsed}m ago`;
+                    
+                    let itemsHtml = "";
+                    order.items.forEach(item => {
+                        itemsHtml += `
+                            <div class="ticket-item">
+                                <div><span class="ticket-item-qty">${item.qty}x</span><span class="ticket-item-name">${item.name}</span></div>
+                                <div style="font-size:0.85rem; opacity:0.7;">$${(item.price * item.qty).toFixed(2)}</div>
+                            </div>
+                        `;
+                    });
+
+                    // Build action button based on state
+                    let actionBtnText = "Start Prep";
+                    let actionClass = "btn-ticket-secondary";
+                    if (order.status === "preparing") {
+                        actionBtnText = "Ready to Serve";
+                        actionClass = "btn-ticket-primary";
+                    } else if (order.status === "ready") {
+                        actionBtnText = "Serve & Archive";
+                        actionClass = "btn-ticket-primary";
+                    }
+
+                    const notesHtml = order.notes ? `<div class="ticket-notes"><strong>Notes:</strong> ${order.notes}</div>` : "";
+
+                    ticket.innerHTML = `
+                        <div class="ticket-header">
+                            <div>
+                                <div class="ticket-table">Table <span>${order.table}</span></div>
+                                <div class="ticket-id">Order #${order.id}</div>
+                            </div>
+                            <span class="ticket-timer">${timerText}</span>
+                        </div>
+                        <div class="ticket-items">
+                            ${itemsHtml}
+                        </div>
+                        ${notesHtml}
+                        <div class="ticket-footer">
+                            <div class="ticket-total-row">
+                                <span>Subtotal</span>
+                                <span>$${order.total.toFixed(2)}</span>
+                            </div>
+                            <div class="ticket-actions">
+                                <button class="btn-ticket ${actionClass}" data-action="state" data-id="${order.id}">${actionBtnText}</button>
+                                <button class="btn-ticket btn-ticket-danger" data-action="cancel" data-id="${order.id}" title="Cancel Order">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    ordersGrid.appendChild(ticket);
+
+                    // Bind action listeners
+                    ticket.querySelector("[data-action='state']").addEventListener("click", () => {
+                        advanceOrderState(order.id);
+                    });
+
+                    ticket.querySelector("[data-action='cancel']").addEventListener("click", () => {
+                        if (confirm("Are you sure you want to cancel Order #" + order.id + "?")) {
+                            cancelOrder(order.id);
+                        }
+                    });
+                });
+            }
+
+            function advanceOrderState(orderId) {
+                const orderIdx = ordersList.findIndex(o => o.id === orderId);
+                if (orderIdx === -1) return;
+
+                const currentStatus = ordersList[orderIdx].status;
+                if (currentStatus === "pending") {
+                    ordersList[orderIdx].status = "preparing";
+                } else if (currentStatus === "preparing") {
+                    ordersList[orderIdx].status = "ready";
+                } else if (currentStatus === "ready") {
+                    // Serve & Archive
+                    ordersList[orderIdx].status = "completed";
+                    
+                    // Increment served count & revenue
+                    servedCount++;
+                    archivedRevenue += ordersList[orderIdx].total;
+                    
+                    localStorage.setItem("bmm_served_count", servedCount);
+                    localStorage.setItem("bmm_archived_revenue", archivedRevenue);
+                }
+
+                saveOrders();
+                fetchOrders();
+            }
+
+            function cancelOrder(orderId) {
+                const orderIdx = ordersList.findIndex(o => o.id === orderId);
+                if (orderIdx === -1) return;
+                
+                ordersList.splice(orderIdx, 1);
+                saveOrders();
+                fetchOrders();
+            }
+
+            // Customer order simulator
+            btnSimulate.addEventListener("click", () => {
+                const sampleCoffees = [
+                    { name: "Double Shot Espresso", price: 4.50 },
+                    { name: "Classic Cappuccino", price: 5.25 },
+                    { name: "Velvet Latte", price: 5.50 },
+                    { name: "18-Hour Cold Brew", price: 6.00 },
+                    { name: "Smoked Salmon Bagel", price: 14.00 },
+                    { name: "Chocolate Lava Cake", price: 9.00 }
+                ];
+                
+                // Choose random coffee count (1 to 3 items)
+                const itemsCount = Math.floor(1 + Math.random() * 3);
+                const orderItems = [];
+                let subtotal = 0;
+                
+                for (let i = 0; i < itemsCount; i++) {
+                    const sample = sampleCoffees[Math.floor(Math.random() * sampleCoffees.length)];
+                    const qty = Math.floor(1 + Math.random() * 2);
+                    orderItems.push({
+                        name: sample.name,
+                        price: sample.price,
+                        qty: qty
+                    });
+                    subtotal += sample.price * qty;
+                }
+                
+                const tax = subtotal * 0.08;
+                const total = subtotal + tax;
+                
+                const sampleNotes = [
+                    "Oat milk, extra hot",
+                    "No sugar in latte please",
+                    "Add ice to the cold brew",
+                    "Warm up the lava cake",
+                    ""
+                ];
+                
+                const fakeOrder = {
+                    id: Math.floor(1000 + Math.random() * 9000).toString(),
+                    table: Math.floor(1 + Math.random() * 12).toString(),
+                    items: orderItems,
+                    notes: sampleNotes[Math.floor(Math.random() * sampleNotes.length)],
+                    status: "pending",
+                    total: total,
+                    timestamp: Date.now()
+                };
+
+                ordersList.push(fakeOrder);
+                saveOrders();
+                fetchOrders();
+            });
+
+            // Reset Archive stats
+            btnClearArchive.addEventListener("click", () => {
+                if (confirm("Reset served count and revenue back to zero?")) {
+                    servedCount = 0;
+                    archivedRevenue = 0.00;
+                    localStorage.setItem("bmm_served_count", 0);
+                    localStorage.setItem("bmm_archived_revenue", "0.00");
+                    fetchOrders();
+                }
+            });
+
+            // Storage trigger to catch changes in other tabs
+            window.addEventListener("storage", () => {
+                fetchOrders();
+            });
+
+            // Initial load
+            fetchOrders();
+            
+            // Interval to update "elapsed time" text every 30 seconds
+            setInterval(renderOrdersBoard, 30000);
+        });
+    </script>
+</body>
+</html>
