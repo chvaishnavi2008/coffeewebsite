@@ -752,6 +752,28 @@ document.addEventListener("DOMContentLoaded", () => {
             placeOrderBtn.addEventListener("click", placeOrder);
         }
         
+        
+        // Customer Logout (Desktop & Mobile)
+        const handleCustomerLogout = () => {
+            if (confirm("Logout and return to Portal Selection?")) {
+                deactivateTableSession();
+                window.location.href = "index.html";
+            }
+        };
+
+        const btnCustomerLogout = document.getElementById("btn-customer-logout");
+        if (btnCustomerLogout) {
+            btnCustomerLogout.addEventListener("click", handleCustomerLogout);
+        }
+
+        const btnCustomerLogoutMobile = document.getElementById("btn-customer-logout-mobile");
+        if (btnCustomerLogoutMobile) {
+            btnCustomerLogoutMobile.addEventListener("click", (e) => {
+                e.preventDefault();
+                handleCustomerLogout();
+            });
+        }
+
         // Order Widget Dismiss
         const closeStatusWidget = document.getElementById("close-status-widget");
         if (closeStatusWidget) {
