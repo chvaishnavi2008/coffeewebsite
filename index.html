@@ -3,962 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brew Magic Moments | Premium Luxury Café Experience</title>
-    <meta name="description" content="Experience coffee crafted with emotion. Brew Magic Moments blends ethically sourced beans, expert roasting, and cozy luxury ambient spaces.">
+    <title>Brew Magic Moments | Portal Login</title>
+    <meta name="description" content="Access the Brew Magic Moments ordering interface or barista administration dashboard.">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body.login-body {
+            background-color: var(--bg-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ambient floating light blobs */
+        .login-bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-gold-glow) 0%, transparent 70%);
+            top: -10%;
+            left: -10%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .login-bg-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(200, 164, 93, 0.08) 0%, transparent 60%);
+            bottom: -15%;
+            right: -10%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 540px;
+            background: var(--bg-glass);
+            border: var(--border-glass-hover);
+            border-radius: 16px;
+            padding: 3.5rem 3rem;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-logo {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+        .login-logo span {
+            color: var(--accent-gold);
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: var(--cream-muted);
+            margin-bottom: 3rem;
+        }
+
+        /* Dual role selector cards */
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .role-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--border-glass);
+            border-radius: 12px;
+            padding: 2rem 1rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold-dim);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .role-card.active {
+            border-color: var(--accent-gold);
+            background: rgba(200, 164, 93, 0.06);
+            box-shadow: 0 0 20px rgba(200, 164, 93, 0.1);
+        }
+
+        .role-icon {
+            font-size: 2.2rem;
+            filter: grayscale(0.2);
+            transition: var(--transition-quick);
+        }
+        .role-card.active .role-icon {
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .role-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--cream);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .role-card.active h3 {
+            color: var(--white);
+        }
+
+        /* Form sections wrapper */
+        .login-form-area {
+            position: relative;
+            min-height: 120px;
+        }
+
+        .form-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .form-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Input fields styles */
+        .login-input-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .login-input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--cream-muted);
+            margin-bottom: 0.5rem;
+        }
+        .login-input-group input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--border-glass);
+            border-radius: 6px;
+            color: var(--white);
+            padding: 0.85rem 1rem;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: var(--transition-quick);
+        }
+        .login-input-group input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(200, 164, 93, 0.1);
+        }
+
+        .error-message {
+            color: #c85d5d;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes float-beans {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(15deg); }
+        }
+        .floating-bean-decor {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.15;
+            animation: float-beans 6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2.5rem 1.5rem;
+            }
+            .role-selector {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="login-body">
 
-    <!-- PRELOADER -->
-    <div id="preloader">
-        <div class="loader-logo">Brew <span>Magic</span> Moments</div>
-        <div class="loader-bar-bg">
-            <div class="loader-bar" id="loader-bar"></div>
-        </div>
-        <div class="loader-percent" id="loader-percent">0%</div>
-    </div>
+    <!-- Ambient glows -->
+    <div class="login-bg-glow"></div>
+    <div class="login-bg-glow-2"></div>
 
-    <!-- CANVAS BACKGROUND (FIXED FOR STORY SCROLL) -->
-    <div class="canvas-container">
-        <canvas id="coffee-canvas"></canvas>
-        <div class="canvas-overlay"></div>
-    </div>
+    <!-- Floating Coffee Beans Decoration -->
+    <span class="floating-bean-decor" style="top: 15%; right: 15%; animation-delay: 0s;">☕</span>
+    <span class="floating-bean-decor" style="bottom: 15%; left: 15%; animation-delay: 2s;">☕</span>
+    <span class="floating-bean-decor" style="top: 70%; right: 20%; animation-delay: 4s;">☕</span>
 
-    <!-- STICKY APPLE-STYLE NAVIGATION -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-brand">Brew <span>Magic</span> Moments</div>
-        <ul class="nav-links">
-            <li><a href="#hero" class="nav-link active">Home</a></li>
-            <li><a href="#story" class="nav-link">Story</a></li>
-            <li><a href="#journey" class="nav-link">Journey</a></li>
-            <li><a href="#menu" class="nav-link">Menu</a></li>
-            <li><a href="#experience" class="nav-link">Experience</a></li>
-            <li><a href="#gallery" class="nav-link">Gallery</a></li>
-            <li><a href="#visit" class="nav-link">Visit</a></li>
-        </ul>
-        <div class="nav-cta" style="display: flex; gap: 1.5rem; align-items: center;">
-            <button id="audio-toggle" class="audio-btn" aria-label="Toggle background music">
-                <span class="eq-bar"></span>
-                <span class="eq-bar"></span>
-                <span class="eq-bar"></span>
-                <span class="eq-bar"></span>
-            </button>
-            <button class="btn-primary" id="open-booking">Book a Table</button>
-        </div>
-        <button class="mobile-nav-toggle" id="mobile-toggle" aria-label="Toggle menu">
-            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-    </nav>
+    <div class="login-container">
+        <div class="login-logo">Brew <span>Magic</span> Moments</div>
+        <div class="login-subtitle">Select Portal to Access Sanctuary</div>
 
-    <!-- SECTION 1: HERO (IMMERSIVE INTRO) -->
-    <section id="hero">
-        <div class="hero-content">
-            <div class="hero-brand" id="hero-brand">Brew Magic Moments</div>
-            <h1 class="hero-headline" id="hero-title">Coffee, crafted<br>with <span>emotion.</span></h1>
-            <p class="hero-subtext" id="hero-desc">Every cup is a story of warmth, care, and connection. Born from a love for real coffee.</p>
-            <div class="hero-actions" id="hero-btns">
-                <a href="#menu" class="btn-primary">Explore Menu</a>
-                <a href="#visit" class="btn-secondary">Visit Café</a>
+        <!-- Role Selectors -->
+        <div class="role-selector">
+            <div class="role-card active" id="role-customer">
+                <div class="role-icon">🛒</div>
+                <h3>Customer</h3>
+            </div>
+            <div class="role-card" id="role-staff">
+                <div class="role-icon">🧑‍🍳</div>
+                <h3>Barista Staff</h3>
             </div>
         </div>
-        <div class="scroll-indicator">
-            <span>Scroll to Brew</span>
-            <div class="mouse">
-                <div class="scroll-wheel"></div>
-            </div>
-        </div>
-    </section>
 
-    <!-- SECTION 2: OUR STORY (BRAND INTRO) -->
-    <section id="story">
-        <div class="container">
-            <div class="story-grid">
-                <div class="story-visual reveal-fade-left">
-                    <div class="story-img-container">
-                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80" alt="Brew Magic Moments cozy cafe storefront and warm lighting">
-                    </div>
-                </div>
-                <div class="story-content reveal-fade-right">
-                    <span class="subtitle">Our Story</span>
-                    <h2 class="section-title">Born from a love for <span>real coffee.</span></h2>
-                    <p>We believe coffee is more than a drink — it’s a ritual, a pause, a moment of connection in a busy world. Each bean we roast is treated with absolute reverence to draw out its innate emotional warmth.</p>
-                    
-                    <div class="story-features">
-                        <div class="story-feature-item">
-                            <div class="feature-number">01</div>
-                            <div class="feature-info">
-                                <h3>Ethically Sourced Beans</h3>
-                                <p>We partner directly with sustainable, single-origin family estates across the global coffee belt.</p>
-                            </div>
-                        </div>
-                        <div class="story-feature-item">
-                            <div class="feature-number">02</div>
-                            <div class="feature-info">
-                                <h3>Expert Roasting Process</h3>
-                                <p>Small-batch roasted in-house daily to maximize sweet caramelization and delicate floral notes.</p>
-                            </div>
-                        </div>
-                        <div class="story-feature-item">
-                            <div class="feature-number">03</div>
-                            <div class="feature-info">
-                                <h3>Handcrafted Brewing</h3>
-                                <p>Brewed with precision water chemistry and customized extraction variables for every cup.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 2.5: SEED-TO-CUP ROADMAP (INTERACTIVE TIMELINE) -->
-    <section id="roadmap">
-        <div class="roadmap-bg-particles">
-            <div class="particle p1">☕</div>
-            <div class="particle p2">🌱</div>
-            <div class="particle p3">✨</div>
-            <div class="particle p4">🍃</div>
-        </div>
-        <div class="container">
-            <div class="section-header">
-                <span class="subtitle">Our Process</span>
-                <h2 class="section-title">The Seed-to-Cup <span>Roadmap</span></h2>
-                <p class="section-intro-text">Trace the meticulous stages of creation, where raw elements transform into your perfect morning ritual.</p>
-            </div>
+        <!-- Forms Area -->
+        <div class="login-form-area">
             
-            <div class="roadmap-timeline">
-                <!-- Center Progress Line -->
-                <div class="timeline-line-container">
-                    <div class="timeline-line-bg"></div>
-                    <div class="timeline-line-active" id="roadmap-progress-line"></div>
-                </div>
-                
-                <!-- Node 1 -->
-                <div class="roadmap-node left reveal-fade-left" data-roadmap-step="1">
-                    <div class="node-marker">1</div>
-                    <div class="node-content">
-                        <h3>01. Ethical Harvesting</h3>
-                        <p>Our coffee cherries are hand-picked at peak deep-red ripeness by organic growers on sustainable micro-lots.</p>
-                        <span class="node-tag">Sourcing</span>
-                    </div>
-                </div>
-                
-                <!-- Node 2 -->
-                <div class="roadmap-node right reveal-fade-right" data-roadmap-step="2">
-                    <div class="node-marker">2</div>
-                    <div class="node-content">
-                        <h3>02. Honey & Wet Processing</h3>
-                        <p>The pulp is removed and beans are naturally sun-dried on raised African beds for clean, fruit-forward acidity.</p>
-                        <span class="node-tag">Processing</span>
-                    </div>
-                </div>
-                
-                <!-- Node 3 -->
-                <div class="roadmap-node left reveal-fade-left" data-roadmap-step="3">
-                    <div class="node-marker">3</div>
-                    <div class="node-content">
-                        <h3>03. Small-Batch Roasting</h3>
-                        <p>Beans are convection drum-roasted at specific thermal curves to develop rich caramel sugars and single-origin notes.</p>
-                        <span class="node-tag">Craft</span>
-                    </div>
-                </div>
-                
-                <!-- Node 4 -->
-                <div class="roadmap-node right reveal-fade-right" data-roadmap-step="4">
-                    <div class="node-marker">4</div>
-                    <div class="node-content">
-                        <h3>04. High-Precision Grinding</h3>
-                        <p>Flat-burr mills grind beans down to precise microns immediately before extraction to optimize contact surface.</p>
-                        <span class="node-tag">Milling</span>
-                    </div>
-                </div>
-                
-                <!-- Node 5 -->
-                <div class="roadmap-node left reveal-fade-left" data-roadmap-step="5">
-                    <div class="node-marker">5</div>
-                    <div class="node-content">
-                        <h3>05. Master Extraction</h3>
-                        <p>Tamped at a consistent 30lbs pressure and pulled for exactly 28 seconds of golden extraction.</p>
-                        <span class="node-tag">Cup</span>
-                    </div>
-                </div>
+            <!-- Customer Section -->
+            <div class="form-section active" id="form-customer">
+                <p style="color: var(--cream-muted); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">
+                    Browse our luxury menu, scan table cards, and order single-origin brews directly from your device.
+                </p>
+                <button id="btn-enter-customer" class="btn-primary" style="width: 100%;">Enter Café Shop</button>
             </div>
-        </div>
-    </section>
 
-    <!-- SECTION 3: BEAN TO CUP JOURNEY (SCROLL PINNED) -->
-    <section id="journey">
-        <div class="journey-pin-container">
-            <div class="journey-storyboards">
-                <!-- STEP 1 -->
-                <div class="journey-step active" data-step="1">
-                    <span class="step-num">Step 01</span>
-                    <h2>From carefully selected <span>beans...</span></h2>
-                    <p>Our journey begins in the high-altitude cloud forests, where hand-picked red cherries are selected at their peak ripeness.</p>
-                </div>
-                <!-- STEP 2 -->
-                <div class="journey-step" data-step="2">
-                    <span class="step-num">Step 02</span>
-                    <h2>To precise, artisanal <span>roasting...</span></h2>
-                    <p>Using slow-temperature curves, we bring the beans to their peak expression, unlocking deep, rich notes of cacao and warm spices.</p>
-                </div>
-                <!-- STEP 3 -->
-                <div class="journey-step" data-step="3">
-                    <span class="step-num">Step 03</span>
-                    <h2>To the perfect <span>pour.</span></h2>
-                    <p>Crafted by our master baristas who measure extraction down to the milligram, serving you pure emotional liquid gold.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 4: COFFEE PREPARATION (LIVE ACTION) -->
-    <section id="preparation">
-        <div class="container">
-            <div class="prep-grid">
-                <div class="prep-content reveal-fade-left">
-                    <span class="subtitle">The Craft</span>
-                    <h2 class="section-title">Freshly brewed <span>perfection.</span></h2>
-                    <p>Every cup is prepared in real-time with precision and passion. We do not rush. We do not compromise. We celebrate the luxury of time.</p>
-                    
-                    <div class="prep-highlights">
-                        <div class="highlight-box">
-                            <div class="highlight-icon">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M2 21h20v-2H2v2zm3.1-6.1c.9.9 2.2 1.4 3.4 1.4s2.5-.5 3.4-1.4c1.9-1.9 1.9-5.1 0-7l-6.8 7zm7.6-7.8l-1.4-1.4L18.4 2l1.4 1.4-7.1 7.2z"/></svg>
-                            </div>
-                            <div class="highlight-content">
-                                <h3>Freshly Ground Beans</h3>
-                                <p>Beans are ground just seconds before brewing to retain volatile aromatic compounds.</p>
-                            </div>
-                        </div>
-                        <div class="highlight-box">
-                            <div class="highlight-icon">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                            </div>
-                            <div class="highlight-content">
-                                <h3>Barista-Crafted Precision</h3>
-                                <p>Tamped at a consistent 30lbs pressure and pulled for exactly 28 seconds of golden extraction.</p>
-                            </div>
-                        </div>
-                        <div class="highlight-box">
-                            <div class="highlight-icon">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                            </div>
-                            <div class="highlight-content">
-                                <h3>Served at Perfect Temperature</h3>
-                                <p>Milk micro-foam structured precisely at 65°C for maximum sweet creaminess without burning.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="prep-visual reveal-fade-right">
-                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" alt="Pouring latte art at Brew Magic Moments cafe">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 5: SIGNATURE MENU -->
-    <section id="menu">
-        <div class="container">
-            <div class="section-header">
-                <span class="subtitle">Signature Brews</span>
-                <h2 class="section-title">The Curated <span>Menu</span></h2>
-                <p class="section-intro-text">Explore our coffee masterpieces, roasted and extracted with absolute passion.</p>
-            </div>
-            
-            <div class="menu-filters reveal-fade-up">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="hot">Hot Brews</button>
-                <button class="filter-btn" data-filter="cold">Cold Signature</button>
-                <button class="filter-btn" data-filter="breakfast">Breakfast</button>
-                <button class="filter-btn" data-filter="desserts">Desserts</button>
-            </div>
-            
-            <div class="menu-grid">
-                <!-- Item 1: Espresso -->
-                <div class="menu-card reveal-card" data-category="hot">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80" alt="Double Shot Espresso">
-                    </div>
-                    <h3>Double Shot Espresso</h3>
-                    <p>Rich, concentrated extraction with thick golden crema and deep hints of dark chocolate.</p>
-                    <div class="menu-price">$4.50</div>
-                </div>
-                <!-- Item 2: Cappuccino -->
-                <div class="menu-card reveal-card" data-category="hot">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=500&q=80" alt="Classic Cappuccino">
-                    </div>
-                    <h3>Classic Cappuccino</h3>
-                    <p>Equal parts bold espresso, velvety steamed milk, and light cushion of micro-foam.</p>
-                    <div class="menu-price">$5.25</div>
-                </div>
-                <!-- Item 3: Velvet Latte -->
-                <div class="menu-card reveal-card" data-category="hot">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80" alt="Velvet Latte">
-                    </div>
-                    <h3>Velvet Latte</h3>
-                    <p>Silky steamed milk poured gently over double espresso with intricate, customized latte art.</p>
-                    <div class="menu-price">$5.50</div>
-                </div>
-                <!-- Item 4: Irish Coffee -->
-                <div class="menu-card reveal-card" data-category="hot">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80" alt="Irish Coffee">
-                    </div>
-                    <h3>Irish Coffee</h3>
-                    <p>Warm espresso layered with premium aged whiskey and topped with thick fresh cream.</p>
-                    <div class="menu-price">$7.50</div>
-                </div>
-                <!-- Item 5: Macchiato -->
-                <div class="menu-card reveal-card" data-category="hot">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80" alt="Caramel Macchiato">
-                    </div>
-                    <h3>Macchiato</h3>
-                    <p>Rich espresso marked with velvety steamed milk foam and organic caramel drizzle.</p>
-                    <div class="menu-price">$5.00</div>
-                </div>
-                <!-- Item 6: Cold Brew -->
-                <div class="menu-card reveal-card" data-category="cold">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=500&q=80" alt="18-Hour Cold Brew">
-                    </div>
-                    <h3>18-Hour Cold Brew</h3>
-                    <p>Slowly steeped in cold alkaline water, yielding a smooth, chocolatey, low-acid nectar.</p>
-                    <div class="menu-price">$6.00</div>
-                </div>
-                <!-- Item 7: Caramel Frappe -->
-                <div class="menu-card reveal-card" data-category="cold">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=500&q=80" alt="Caramel Iced Frappé">
-                    </div>
-                    <h3>Caramel Iced Frappé</h3>
-                    <p>Ice-blended espresso whipped with creamy caramel syrup and organic whipped milk.</p>
-                    <div class="menu-price">$6.50</div>
-                </div>
-                <!-- Item 8: Coconut Nitro -->
-                <div class="menu-card reveal-card" data-category="cold">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1553909489-cd47e0907980?auto=format&fit=crop&w=500&q=80" alt="Coconut Nitro Cold Brew">
-                    </div>
-                    <h3>Coconut Nitro</h3>
-                    <p>Nitrogen-infused cold brew layered with sweet organic coconut micro-foam.</p>
-                    <div class="menu-price">$7.00</div>
-                </div>
-                <!-- Item 9: Avocado Toast -->
-                <div class="menu-card reveal-card" data-category="breakfast">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=500&q=80" alt="Avocado Sourdough Toast">
-                    </div>
-                    <h3>Avocado Toast</h3>
-                    <p>Smashed Hass avocado on toasted local sourdough with microgreens and gold chili flakes.</p>
-                    <div class="menu-price">$12.50</div>
-                </div>
-                <!-- Item 10: Smoked Salmon Bagel -->
-                <div class="menu-card reveal-card" data-category="breakfast">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80" alt="Smoked Salmon Bagel">
-                    </div>
-                    <h3>Smoked Salmon Bagel</h3>
-                    <p>Toasted everything bagel spread with herb cream cheese, capers, and premium smoked salmon.</p>
-                    <div class="menu-price">$14.00</div>
-                </div>
-                <!-- Item 11: Tiramisu Classico -->
-                <div class="menu-card reveal-card" data-category="desserts">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=500&q=80" alt="Tiramisu Classico">
-                    </div>
-                    <h3>Tiramisu Classico</h3>
-                    <p>Espresso-soaked ladyfingers layered with rich mascarpone zabaglione cream.</p>
-                    <div class="menu-price">$8.50</div>
-                </div>
-                <!-- Item 12: Lava Cake -->
-                <div class="menu-card reveal-card" data-category="desserts">
-                    <div class="menu-img-container">
-                        <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=80" alt="Warm Chocolate Lava Cake">
-                    </div>
-                    <h3>Chocolate Lava Cake</h3>
-                    <p>Indulgent warm chocolate cake featuring a liquid center of single-origin Peruvian dark cacao.</p>
-                    <div class="menu-price">$9.00</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 6: CAFÉ EXPERIENCE -->
-    <section id="experience">
-        <div class="container">
-            <div class="experience-grid">
-                <div class="experience-visual reveal-fade-left">
-                    <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=800&q=80" alt="Cozy cafe table with magazines and coffee cup">
-                </div>
-                
-                <div class="experience-content reveal-fade-right">
-                    <span class="subtitle">The Space</span>
-                    <h2 class="section-title">A space to <span>slow down.</span></h2>
-                    <p>Designed for comfort, creativity, and connection. A place where time feels softer and the aroma of coffee creates an sanctuary from the hectic world outside.</p>
-                    
-                    <div class="exp-highlights">
-                        <div class="exp-item">
-                            <span class="exp-icon">🌿</span>
-                            <div class="exp-text">
-                                <h3>Calm Ambience</h3>
-                                <p>Carefully curated acoustic playlists, gentle hums of roasting, and warm ambient light settings.</p>
-                            </div>
-                        </div>
-                        <div class="exp-item">
-                            <span class="exp-icon">✨</span>
-                            <div class="exp-text">
-                                <h3>Minimal Modern Interiors</h3>
-                                <p>Organic concrete textures, brushed gold fixtures, and rich walnut tables crafted by local artisans.</p>
-                            </div>
-                        </div>
-                        <div class="exp-item">
-                            <span class="exp-icon">🛋️</span>
-                            <div class="exp-text">
-                                <h3>Comfortable Seating Experience</h3>
-                                <p>Ergonomic linen lounges and workspace nooks equipped with fast fiber and individual charging points.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 7: GALLERY (VERIFIED BUILD) -->
-    <section id="gallery">
-        <div class="container">
-            <div class="section-header">
-                <span class="subtitle">Visual Storytelling</span>
-                <h2 class="section-title">Cinematic <span>Gallery</span></h2>
-                <p class="section-intro-text">Frames from our daily coffee life. Capturing the light, the steam, and the connection.</p>
-            </div>
-            
-            <div class="gallery-grid">
-                <!-- Item 1: Premium Coffee Quality -->
-                <div class="gallery-item col-span-2 row-span-2 reveal-fade-up">
-                    <img src="https://tse1.mm.bing.net/th/id/OIP.mrielGK4-jr4_gixfGz_bgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Hand-sorting premium raw coffee beans for quality control">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Premium Coffee Quality</h4>
-                            <p>Hand-sorting the top 3% Arabica beans</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 2: Ethically Sourced Beans -->
-                <div class="gallery-item reveal-fade-up" style="transition-delay: 0.1s;">
-                    <img src="https://tse3.mm.bing.net/th/id/OIP.L3lxbioxZScd-_pfY88LnAHaEO?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Ethically grown coffee cherries at a sustainable farm">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Ethically Sourced</h4>
-                            <p>Direct fair-trade partnerships</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 3: Expert Baristas -->
-                <div class="gallery-item reveal-fade-up" style="transition-delay: 0.2s;">
-                    <img src="https://bkkfoodie.com/wp-content/uploads/2019/10/52596249_341018116622458_4471137804985827328_o.jpg" alt="Barista pulling coffee and crafting latte art">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Expert Baristas</h4>
-                            <p>Mastering extraction and art</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 4: Cozy Ambience -->
-                <div class="gallery-item col-span-2 reveal-fade-up" style="transition-delay: 0.3s;">
-                    <img src="https://thumbs.dreamstime.com/b/eclectic-cafe-interior-art-filled-white-brick-wall-cozy-gallery-vintage-furniture-408822419.jpg" alt="Cozy warm ambient cafe seating area with magazines">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Cozy Ambience</h4>
-                            <p>Curated acoustic playlists & soft lights</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 5: Fast Service -->
-                <div class="gallery-item reveal-fade-up" style="transition-delay: 0.4s;">
-                    <img src="https://thesmartlocal.com/wp-content/uploads/2015/06/images_easyblog_images_465_IMG_2099_20150617-081931_1-795x500.jpg" alt="Modern coffee counter service area">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Seamless Service</h4>
-                            <p>Order-from-table app for fast serving</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 6: Aesthetic Café Experience -->
-                <div class="gallery-item col-span-1 row-span-2 reveal-fade-up" style="transition-delay: 0.5s;">
-                    <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=600&q=80" alt="Aesthetic cup of coffee and detail setup">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Aesthetic Experience</h4>
-                            <p>Every detail curated for calm</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 7: Artisanal Roasting -->
-                <div class="gallery-item col-span-2 reveal-fade-up" style="transition-delay: 0.6s;">
-                    <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80" alt="Daily small-batch coffee roasting process">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Signature Roasting</h4>
-                            <p>Daily small-batch roasting in-house</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 8: Precision Pour-over -->
-                <div class="gallery-item col-span-2 reveal-fade-up" style="transition-delay: 0.7s;">
-                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80" alt="Artisanal pour over brewing process">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Artisanal Brewing</h4>
-                            <p>Precision water chemistry extraction</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Item 9: Warm Community -->
-                <div class="gallery-item reveal-fade-up" style="transition-delay: 0.8s;">
-                    <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=600&q=80" alt="Guests sharing a warm cup of coffee and moments together">
-                    <div class="gallery-overlay">
-                        <div class="gallery-info">
-                            <h4>Brewed Connections</h4>
-                            <p>Creating shared warm moments</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 8: WHY CHOOSE US -->
-    <section id="why-us">
-        <div class="container">
-            <div class="section-header">
-                <span class="subtitle">The Brew Standard</span>
-                <h2 class="section-title">Why <span>Choose Us</span></h2>
-                <p class="section-intro-text">We go beyond flavor. We focus on details that elevate your morning routine into a premium memory.</p>
-            </div>
-            
-            <div class="why-grid">
-                <!-- Card 1 -->
-                <div class="why-card reveal-card">
-                    <div class="why-icon">☕</div>
-                    <h3>Premium Coffee Quality</h3>
-                    <p>Only the top 3% of Arabica beans globally make it into our signature roasting chamber.</p>
-                </div>
-                <!-- Card 2 -->
-                <div class="why-card reveal-card">
-                    <div class="why-icon">🌱</div>
-                    <h3>Ethically Sourced Beans</h3>
-                    <p>Direct fair-trade contracts ensuring local farming families thrive and practice sustainable forestry.</p>
-                </div>
-                <!-- Card 3 -->
-                <div class="why-card reveal-card">
-                    <div class="why-icon">👨‍🍳</div>
-                    <h3>Expert Baristas</h3>
-                    <p>Every barista undergoes 100+ hours of calibration to master temperature, grind velocity, and latte art.</p>
-                </div>
-                <!-- Card 4 -->
-                <div class="why-card reveal-card">
-                    <div class="why-icon">🏡</div>
-                    <h3>Cozy Ambience</h3>
-                    <p>Acoustic insulation, warm lighting design, and comfortable spaces to read, work, or dream.</p>
-                </div>
-                <!-- Card 5 -->
-                <div class="why-card reveal-card">
-                    <div class="why-icon">⚡</div>
-                    <h3>Fast Service</h3>
-                    <p>Order seamlessly from your table using our glassmorphic app interface and get it served in minutes.</p>
-                </div>
-                <!-- Card 6 -->
-                <div class="why-card reveal-card">
-                    <div class="why-icon">🎨</div>
-                    <h3>Aesthetic Café Experience</h3>
-                    <p>Every cup, plate, spoon, and wall texture is selected to offer a visually stunning, calm retreat.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 9: LOCATION / VISIT US -->
-    <section id="visit">
-        <div class="container">
-            <div class="visit-grid">
-                <div class="visit-details reveal-fade-left">
-                    <span class="subtitle">Join Us</span>
-                    <h2 class="section-title">Visit Our <span>Sanctuary</span></h2>
-                    
-                    <div class="visit-info-group">
-                        <h3>Address</h3>
-                        <p>420 Espresso Blvd, Suite 100<br>Metropolis, NY 10001</p>
+            <!-- Staff Section -->
+            <div class="form-section" id="form-staff">
+                <form id="staff-login-form">
+                    <div class="login-input-group">
+                        <label for="username">Barista Username</label>
+                        <input type="text" id="username" placeholder="e.g. admin" required>
                     </div>
                     
-                    <div class="visit-info-group">
-                        <h3>Opening Hours</h3>
-                        <p>Mon - Fri: 7:00 AM - 8:00 PM<br>Sat - Sun: 8:00 AM - 9:00 PM</p>
+                    <div class="login-input-group" style="margin-bottom: 1rem;">
+                        <label for="password">Security Password</label>
+                        <input type="password" id="password" placeholder="e.g. password" required>
                     </div>
+
+                    <div class="error-message" id="login-error">Invalid staff credentials. Please try again.</div>
                     
-                    <div class="visit-info-group">
-                        <h3>Contact</h3>
-                        <p>hello@brewmagicmoments.com<br>+1 (555) 234-5678</p>
-                    </div>
-                    
-                    <div>
-                        <a href="https://maps.google.com" target="_blank" rel="noopener" class="btn-primary">Get Directions</a>
-                    </div>
-                </div>
-                
-                <div class="visit-map reveal-fade-right">
-                    <div class="map-bg" style="background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80')"></div>
-                    <div class="map-overlay">
-                        <div class="map-pin">📍</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 10: TESTIMONIALS -->
-    <section id="testimonials">
-        <div class="container">
-            <div class="section-header">
-                <span class="subtitle">Shared Warmth</span>
-                <h2 class="section-title">Guest <span>Stories</span></h2>
-            </div>
-            
-            <div class="carousel-container reveal-fade-up">
-                <div class="testimonials-track" id="testimonials-track">
-                    <!-- Slide 1 -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-quote">"Best coffee experience I’ve ever had. The attention to extraction variables is something you usually only see in science labs, but the atmosphere makes it feel like home."</p>
-                        <div class="testimonial-author">Sophia Thorne</div>
-                        <div class="testimonial-role">Design Director, Studio Muse</div>
-                    </div>
-                    <!-- Slide 2 -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-quote">"The atmosphere is absolutely unmatched. The minimal glassmorphic elements, the smell of roasting espresso, and the quiet nooks make it my perfect creative writing hideout."</p>
-                        <div class="testimonial-author">Ethan Vance</div>
-                        <div class="testimonial-role">Novelist & Journalist</div>
-                    </div>
-                    <!-- Slide 3 -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-quote">"It really feels like a second home. The baristas greet me by name, know my water-to-cacao ratios, and serve every brew with a smile that brightens my day."</p>
-                        <div class="testimonial-author">Amara Kincaid</div>
-                        <div class="testimonial-role">Tech Consultant</div>
-                    </div>
-                </div>
-                
-                <div class="carousel-controls">
-                    <button class="carousel-btn" id="prev-btn" aria-label="Previous testimonial">←</button>
-                    <button class="carousel-btn" id="next-btn" aria-label="Next testimonial">→</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 11: FINAL CTA (CLOSING HERO) -->
-    <section id="final-cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2 class="cta-title section-title">Experience coffee the way it was <span>meant to be.</span></h2>
-                <p class="cta-subtext">Join us at Brew Magic Moments. Discover a ritual, catch your breath, and savor the details.</p>
-                <div class="cta-buttons">
-                    <a href="#visit" class="btn-primary">Visit Our Café</a>
-                    <a href="#menu" class="btn-secondary">View Complete Menu</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <h2>Brew <span>Magic</span> Moments</h2>
-                <p style="margin-bottom: 1.5rem;">A premium, cinematic coffee experience designed for comfort, creativity, and connection.</p>
-                <form id="newsletter-form" class="newsletter-form">
-                    <input type="email" placeholder="Join the Brew Club (Email)" required aria-label="Email address">
-                    <button type="submit" aria-label="Subscribe">➔</button>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Authorize Access</button>
                 </form>
-                <div id="newsletter-success" class="newsletter-success">Welcome to the Club! ✨</div>
             </div>
-            <div class="footer-col">
-                <h4>Experience</h4>
-                <ul class="footer-links">
-                    <li><a href="#hero">Home</a></li>
-                    <li><a href="#story">Our Story</a></li>
-                    <li><a href="#journey">Journey</a></li>
-                    <li><a href="#menu">Menu</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Sanctuary</h4>
-                <ul class="footer-links">
-                    <li><a href="#experience">The Space</a></li>
-                    <li><a href="#gallery">Gallery</a></li>
-                    <li><a href="#visit">Visit Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Legal</h4>
-                <ul class="footer-links">
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Accessibility</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Brew Magic Moments. All rights reserved.</p>
-            <div class="social-links">
-                <a href="#" aria-label="Instagram">IG</a>
-                <a href="#" aria-label="Facebook">FB</a>
-                <a href="#" aria-label="Pinterest">PI</a>
-            </div>
-        </div>
-    </footer>
 
-    <!-- BOOKING MODAL -->
-    <div id="booking-overlay" class="booking-overlay">
-        <div class="booking-modal">
-            <button class="close-booking" id="close-booking" aria-label="Close reservation modal">&times;</button>
-            <div class="booking-content-wrap">
-                <div class="booking-form-side" id="booking-form-side">
-                    <h2>Reserve a <span>Sanctuary</span></h2>
-                    <p>Select your time of comfort and connection. We will prepare your space.</p>
-                    <form id="booking-form">
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="book-name">Name</label>
-                                <input type="text" id="book-name" required placeholder="Your Name">
-                            </div>
-                            <div class="input-group">
-                                <label for="book-guests">Guests</label>
-                                <select id="book-guests" required>
-                                    <option value="1">1 Person</option>
-                                    <option value="2" selected>2 People</option>
-                                    <option value="4">4 People</option>
-                                    <option value="6">6+ People (Group)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="book-date">Date</label>
-                                <input type="date" id="book-date" required>
-                            </div>
-                            <div class="input-group">
-                                <label for="book-time">Time</label>
-                                <input type="time" id="book-time" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.5rem;">Confirm Reservation</button>
-                    </form>
-                </div>
-                <div class="booking-success-side" id="booking-success-side">
-                    <div class="success-icon">✓</div>
-                    <h2>Table Reserved</h2>
-                    <p>Your sanctuary is secured. We look forward to crafting magic moments for you.</p>
-                    <div class="success-details">
-                        <span id="summary-date">May 26, 2026</span> at <span id="summary-time">10:00 AM</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-    <!-- ACTIVE TABLE SESSION PILL -->
-    <div id="active-table-pill" class="active-table-pill">
-        <span class="active-indicator"></span>
-        <span class="active-table-text">Dining at Table <span id="active-table-number">X</span></span>
-        <button id="btn-exit-table" class="btn-exit-table" aria-label="Exit ordering session" title="Exit Session">&times;</button>
-    </div>
 
-    <!-- CART DRAWER OVERLAY -->
-    <div id="cart-drawer-overlay" class="cart-drawer-overlay">
-        <div class="cart-drawer">
-            <button class="close-cart" id="close-cart" aria-label="Close cart">&times;</button>
-            <div class="cart-header">
-                <h2>Table <span>Order</span></h2>
-                <span class="active-table-label" id="cart-table-label">Table X</span>
-            </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnCustomer = document.getElementById("role-customer");
+            const btnStaff = document.getElementById("role-staff");
             
-            <div class="cart-items-container" id="cart-items">
-                <div class="empty-cart-msg">Your cart is empty. Tap the "+" on menu items to add them!</div>
-            </div>
+            const formCustomer = document.getElementById("form-customer");
+            const formStaff = document.getElementById("form-staff");
             
-            <div class="cart-footer">
-                <div class="notes-group">
-                    <label for="cart-notes">Barista Notes / Requests</label>
-                    <textarea id="cart-notes" placeholder="e.g. Oat milk, extra hot, no sugar..." rows="2"></textarea>
-                </div>
+            const staffForm = document.getElementById("staff-login-form");
+            const errorMsg = document.getElementById("login-error");
+            
+            // Switch roles
+            btnCustomer.addEventListener("click", () => {
+                btnCustomer.classList.add("active");
+                btnStaff.classList.remove("active");
                 
-                <div class="cart-summary">
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span id="cart-subtotal">$0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Tax (8%)</span>
-                        <span id="cart-tax">$0.00</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span id="cart-total">$0.00</span>
-                    </div>
-                </div>
+                formCustomer.classList.add("active");
+                formStaff.classList.remove("active");
+                errorMsg.style.display = "none";
+            });
+
+            btnStaff.addEventListener("click", () => {
+                btnStaff.classList.add("active");
+                btnCustomer.classList.remove("active");
                 
-                <button id="place-order-btn" class="btn-primary" style="width: 100%; margin-top: 1rem;">Confirm Table Order</button>
-            </div>
-            
-            <!-- Simulated Ordering Stepper -->
-            <div class="checkout-stepper-overlay" id="checkout-stepper">
-                <div class="stepper-content">
-                    <div class="stepper-visual">
-                        <div class="stepper-loader-container">
-                            <div class="loading-cacao">☕</div>
-                            <svg viewBox="0 0 100 100" class="stepper-spinner">
-                                <circle cx="50" cy="50" r="45" />
-                            </svg>
-                        </div>
-                        <div class="success-checkmark">✓</div>
-                    </div>
-                    
-                    <h3 id="stepper-title">Sending to Barista</h3>
-                    <p id="stepper-desc">Establishing kitchen connection...</p>
-                    
-                    <div class="stepper-steps">
-                        <div class="step-node active" id="step-node-1">
-                            <span class="step-dot"></span>
-                            <span class="step-label">Sending</span>
-                        </div>
-                        <div class="step-node" id="step-node-2">
-                            <span class="step-dot"></span>
-                            <span class="step-label">Accepting</span>
-                        </div>
-                        <div class="step-node" id="step-node-3">
-                            <span class="step-dot"></span>
-                            <span class="step-label">Preparing</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                formStaff.classList.add("active");
+                formCustomer.classList.remove("active");
+            });
 
-    <!-- QR MENU GENERATOR MODAL -->
-    <div id="qr-modal-overlay" class="qr-modal-overlay">
-        <div class="qr-modal">
-            <button class="close-qr-modal" id="close-qr-modal" aria-label="Close QR dashboard">&times;</button>
-            <div class="qr-modal-content">
-                <div class="qr-config-side">
-                    <h2>QR Menu <span>Dashboard</span></h2>
-                    <p>Generate, download, and test table-specific QR codes for Brew Magic Moments.</p>
-                    
-                    <div class="input-group" style="margin-top: 1.5rem;">
-                        <label for="qr-table-select">Select Table Number</label>
-                        <select id="qr-table-select">
-                            <option value="1">Table 1</option>
-                            <option value="2">Table 2</option>
-                            <option value="3">Table 3</option>
-                            <option value="4">Table 4</option>
-                            <option value="5" selected>Table 5</option>
-                            <option value="6">Table 6</option>
-                            <option value="7">Table 7</option>
-                            <option value="8">Table 8</option>
-                            <option value="9">Table 9</option>
-                            <option value="10">Table 10</option>
-                            <option value="11">Table 11</option>
-                            <option value="12">Table 12</option>
-                        </select>
-                   </div>
-                    
-                    <div class="qr-actions-grid" style="margin-top: 2rem;">
-                        <button id="btn-simulate-scan" class="btn-primary" style="width: 100%; margin-bottom: 0.75rem;">Simulate Table Scan</button>
-                        <button id="btn-download-qr" class="btn-secondary" style="width: 100%; margin-bottom: 0.75rem;">Download QR PNG</button>
-                        <button id="btn-print-qr" class="btn-secondary" style="width: 100%;">Print Table Card</button>
-                    </div>
-                </div>
+            // Customer Entry
+            document.getElementById("btn-enter-customer").addEventListener("click", () => {
+                window.location.href = "menu.html";
+            });
+
+            // Staff Authentication
+            staffForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const userVal = document.getElementById("username").value.trim();
+                const passVal = document.getElementById("password").value.trim();
                 
-                <div class="qr-preview-side">
-                    <!-- Printable Card Frame -->
-                    <div class="qr-print-card" id="qr-print-card">
-                        <div class="card-cafe-header">
-                            <div class="card-brand">Brew <span>Magic</span> Moments</div>
-                            <div class="card-divider"></div>
-                        </div>
-                        
-                        <div class="qr-code-wrapper">
-                            <div id="qr-code-element"></div>
-                        </div>
-                        
-                        <div class="card-cafe-footer">
-                            <h3 id="qr-card-table-num">Table 5</h3>
-                            <p>Scan to Order Directly from your Phone</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TABLE SELECTOR PROMPT -->
-    <div id="table-select-overlay" class="table-select-overlay">
-        <div class="table-select-modal">
-            <button class="close-table-select" id="close-table-select" aria-label="Close table selector">&times;</button>
-            <h2>Start <span>Table Session</span></h2>
-            <p>To order fresh brews directly to your table, please enter or select your table number below:</p>
-            
-            <form id="table-select-form" style="margin-top: 1.5rem;">
-                <div class="input-group">
-                    <label for="manual-table-num">Table Number (1 - 50)</label>
-                    <input type="number" id="manual-table-num" min="1" max="50" required placeholder="e.g. 5">
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.5rem;">Start Ordering</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- FLOATING ACTION BUTTONS -->
-    <div class="floating-actions-container">
-        <button id="floating-qr-hub" class="floating-btn qr-hub-btn" aria-label="QR Code Generator Hub" title="QR Code Generator">
-            <span class="floating-icon">🎛️</span>
-        </button>
-        <button id="floating-cart" class="floating-btn cart-btn" aria-label="Open ordering cart" title="Open Cart">
-            <span class="floating-icon">🛒</span>
-            <span class="cart-badge" id="cart-badge-count">0</span>
-        </button>
-    </div>
-
-    <!-- ORDER STATUS TRACKER -->
-    <div id="order-status-widget" class="order-status-widget">
-        <div class="status-widget-content">
-            <div class="status-icon-glow">☕</div>
-            <div class="status-text-wrap">
-                <h4 id="order-widget-title">Order #BMM-1234</h4>
-                <p id="order-widget-timer">Status: Preparing (5:00)</p>
-            </div>
-            <button class="close-status-widget" id="close-status-widget" aria-label="Dismiss status">&times;</button>
-        </div>
-    </div>
-
-    <!-- CUSTOM CURSOR -->
-    <div id="custom-cursor-dot"></div>
-    <div id="custom-cursor-ring"></div>
-
-    <!-- GSAP CORE & SCROLLTRIGGER CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <!-- QRCODE GENERATOR LIBRARY -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="app.js"></script>
+                // Demo credentials: admin / password
+                if (userVal === "admin" && passVal === "password") {
+                    errorMsg.style.display = "none";
+                    
+                    // Direct redirect to staff page
+                    window.location.href = "staff.html";
+                } else {
+                    errorMsg.style.display = "block";
+                    // Shake container animation
+                    const container = document.querySelector(".login-container");
+                    container.style.animation = "shake 0.4s ease";
+                    setTimeout(() => {
+                        container.style.animation = "";
+                    }, 400);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
