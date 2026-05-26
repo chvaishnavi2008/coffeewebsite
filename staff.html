@@ -623,6 +623,507 @@
             transform: translateY(-2px);
         }
 
+        /* Filter Tabs */
+        .filter-tabs-container {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-filter-tab {
+            background: rgba(20, 16, 13, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--cream-muted);
+            padding: 0.6rem 1.25rem;
+            border-radius: 30px;
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: var(--transition-quick);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-filter-tab:hover {
+            color: var(--white);
+            border-color: rgba(200, 164, 93, 0.25);
+            background: rgba(20, 16, 13, 0.6);
+        }
+
+        .btn-filter-tab.active {
+            background: rgba(200, 164, 93, 0.1);
+            border-color: var(--accent-gold);
+            color: var(--white);
+            box-shadow: 0 0 15px rgba(200, 164, 93, 0.1);
+        }
+
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--cream-muted);
+            font-size: 0.65rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 20px;
+            font-weight: 700;
+            transition: var(--transition-quick);
+        }
+
+        .btn-filter-tab.active .tab-badge {
+            background: var(--accent-gold);
+            color: var(--bg-main);
+        }
+
+        /* Delayed orders blinking red border and warning tags */
+        .order-ticket.ticket-delayed {
+            animation: pulse-delayed-border 2s infinite ease-in-out;
+            border: 1px solid rgba(224, 94, 94, 0.3) !important;
+        }
+
+        @keyframes pulse-delayed-border {
+            0%, 100% {
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 10px rgba(224, 94, 94, 0.05);
+                border-color: rgba(224, 94, 94, 0.2) !important;
+            }
+            50% {
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45), 0 0 25px rgba(224, 94, 94, 0.3);
+                border-color: rgba(224, 94, 94, 0.65) !important;
+            }
+        }
+
+        .delay-warning-badge {
+            background: rgba(224, 94, 94, 0.15);
+            color: #ff7676;
+            border: 1px solid rgba(224, 94, 94, 0.3);
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            animation: flash-text 1.5s infinite ease-in-out;
+        }
+
+        @keyframes flash-text {
+            0%, 100% { opacity: 0.75; }
+            50% { opacity: 1; }
+        }
+
+        /* Slide-out History Drawer */
+        .history-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 10, 8, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+        }
+
+        .history-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .history-drawer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-left: 1px solid rgba(200, 164, 93, 0.15);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            box-shadow: -20px 0 50px rgba(0,0,0,0.8);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .history-overlay.active .history-drawer {
+            transform: translateX(0);
+        }
+
+        .close-history {
+            position: absolute;
+            top: 2rem;
+            right: 2.2rem;
+            background: transparent;
+            border: none;
+            color: var(--cream-muted);
+            font-size: 2.25rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: var(--transition-quick);
+        }
+
+        .close-history:hover {
+            color: var(--accent-gold);
+        }
+
+        .history-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .history-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .history-header h2 span {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-weight: 400;
+            color: var(--accent-gold);
+        }
+
+        .history-header p {
+            font-size: 0.85rem;
+            color: var(--cream-muted);
+            margin-top: 0.25rem;
+        }
+
+        .history-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .history-summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .history-stat-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .history-stat-mini span {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--cream-muted);
+        }
+
+        .history-stat-mini strong {
+            font-size: 1.35rem;
+            font-family: var(--font-heading);
+            color: var(--accent-gold);
+            font-weight: 800;
+        }
+
+        .history-logs-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-right: 0.5rem;
+        }
+
+        .history-logs-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .history-logs-list::-webkit-scrollbar-thumb {
+            background: rgba(200, 164, 93, 0.15);
+            border-radius: 2px;
+        }
+
+        .history-log-card {
+            background: rgba(20, 16, 13, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .history-log-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .history-log-table {
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .history-log-table span {
+            color: var(--accent-gold);
+        }
+
+        .history-log-time {
+            font-size: 0.7rem;
+            color: var(--cream-muted);
+        }
+
+        .history-log-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+            color: var(--cream-muted);
+        }
+
+        .history-log-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-top: 0.25rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.05);
+            padding-top: 0.5rem;
+        }
+        .history-log-total-row span:last-child {
+            color: var(--accent-gold);
+        }
+
+        .empty-history-msg {
+            color: var(--cream-muted);
+            text-align: center;
+            padding: 4rem 1rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Audio Switch Settings Panel */
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0.5rem 0;
+        }
+
+        .audio-controls-group h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--cream-muted);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .audio-control-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .audio-control-row.flex-row {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .audio-control-row label {
+            font-size: 0.75rem;
+            font-family: var(--font-heading);
+            color: var(--cream);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* Custom volume slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-gold-glow);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--cream-muted);
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: rgba(93, 200, 123, 0.2);
+            border-color: rgba(93, 200, 123, 0.4);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+            background-color: #5dc87b;
+            box-shadow: 0 0 8px rgba(93, 200, 123, 0.6);
+        }
+
+        .slider.round {
+            border-radius: 24px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        /* Floating Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 10001;
+            pointer-events: none;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .toast-card {
+            pointer-events: auto;
+            background: rgba(20, 16, 13, 0.85);
+            border: 1px solid rgba(200, 164, 93, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(200, 164, 93, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s;
+        }
+
+        .toast-card.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(200, 164, 93, 0.1);
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(200, 164, 93, 0.15);
+        }
+
+        .toast-info {
+            flex-grow: 1;
+        }
+
+        .toast-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toast-desc {
+            font-size: 0.8rem;
+            color: var(--cream-muted);
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: var(--cream-muted);
+            font-size: 1.15rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .toast-close:hover {
+            color: var(--accent-gold);
+        }
+
         @media (max-width: 992px) {
             .dashboard-content {
                 grid-template-columns: 1fr;
@@ -657,6 +1158,9 @@
             <div class="staff-status-badge">
                 <span class="staff-status-dot"></span> Active Terminal
             </div>
+            <button id="btn-open-history" class="btn-logout" style="display:flex; align-items:center; gap:0.5rem; margin-right: 0.5rem;">
+                <span>📋</span> History Log
+            </button>
             <button id="btn-logout" class="btn-logout">Logout</button>
         </div>
     </header>
@@ -699,6 +1203,15 @@
         <!-- Live Order Tickets Panel -->
         <section class="orders-board-section">
             <h2>Active Table Orders</h2>
+            
+            <!-- Filters Board Tabs -->
+            <div class="filter-tabs-container">
+                <button class="btn-filter-tab active" data-filter="all">All Orders <span class="tab-badge" id="filter-all-count">0</span></button>
+                <button class="btn-filter-tab" data-filter="pending">Pending <span class="tab-badge" id="filter-pending-count">0</span></button>
+                <button class="btn-filter-tab" data-filter="preparing">Preparing <span class="tab-badge" id="filter-preparing-count">0</span></button>
+                <button class="btn-filter-tab" data-filter="ready">Ready <span class="tab-badge" id="filter-ready-count">0</span></button>
+            </div>
+            
             <div class="orders-grid" id="orders-grid-element">
                 <div class="no-orders-msg">
                     ☕ Waiting for orders...<br>
@@ -716,10 +1229,58 @@
                 </p>
                 <button id="btn-simulate-order" class="btn-primary" style="width: 100%;">Simulate Client Order</button>
                 <button id="btn-clear-archive" class="btn-secondary" style="width: 100%;">Reset Archive Stats</button>
+                
+                <div class="sidebar-divider"></div>
+                
+                <!-- Chime Alert Sound Settings -->
+                <div class="audio-controls-group">
+                    <h3>Chime Alert Settings</h3>
+                    <div class="audio-control-row">
+                        <label for="chime-volume">Volume</label>
+                        <input type="range" id="chime-volume" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                    <div class="audio-control-row flex-row">
+                        <label for="chime-mute-toggle" style="margin: 0; cursor: pointer;">Mute Alerts</label>
+                        <label class="switch">
+                            <input type="checkbox" id="chime-mute-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <button id="btn-test-chime" class="btn-secondary" style="width: 100%; margin-top: 0.5rem; padding: 0.55rem; font-size: 0.7rem; font-weight: 700;">Test Chime Sound</button>
+                </div>
             </div>
         </section>
 
     </main>
+
+    <!-- ORDER HISTORY LOGS DRAWER -->
+    <div id="history-drawer-overlay" class="history-overlay">
+        <div class="history-drawer">
+            <button class="close-history" id="close-history" aria-label="Close History">&times;</button>
+            <div class="history-header">
+                <h2>Served <span>History</span></h2>
+                <p>Logs of completed table orders today</p>
+            </div>
+            <div class="history-content">
+                <div class="history-summary-stats">
+                    <div class="history-stat-mini">
+                        <span>Total Served</span>
+                        <strong id="history-total-count">0</strong>
+                    </div>
+                    <div class="history-stat-mini">
+                        <span>Best Seller Today</span>
+                        <strong id="history-best-seller">-</strong>
+                    </div>
+                </div>
+                <div class="history-logs-list" id="history-logs-list-element">
+                    <!-- History log entries will render dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
 
     <!-- Scripting Dashboard Logic -->
     <script>
@@ -816,6 +1377,7 @@
                 }
             }
 
+            // Handle canvas resizing
             function resizeCanvas() {
                 if (!canvas) return;
                 canvas.width = window.innerWidth;
@@ -845,6 +1407,9 @@
             let ordersList = [];
             let servedCount = parseInt(localStorage.getItem("bmm_served_count") || "0", 10);
             let archivedRevenue = parseFloat(localStorage.getItem("bmm_archived_revenue") || "0.00");
+            let currentFilter = "all";
+            let chimeVolume = parseFloat(localStorage.getItem("bmm_chime_volume") || "0.5");
+            let chimeMuted = localStorage.getItem("bmm_chime_muted") === "true";
 
             // Element binds
             const ordersGrid = document.getElementById("orders-grid-element");
@@ -856,8 +1421,45 @@
             const countServed = document.getElementById("stat-served-count");
             const revenueVal = document.getElementById("stat-revenue");
 
+            // New features element binds
+            const btnOpenHistory = document.getElementById("btn-open-history");
+            const btnCloseHistory = document.getElementById("close-history");
+            const historyOverlay = document.getElementById("history-drawer-overlay");
+            const historyLogsList = document.getElementById("history-logs-list-element");
+            const historyTotalCount = document.getElementById("history-total-count");
+            const historyBestSeller = document.getElementById("history-best-seller");
+
+            const inputVolume = document.getElementById("chime-volume");
+            const toggleMute = document.getElementById("chime-mute-toggle");
+            const btnTestChime = document.getElementById("btn-test-chime");
+            const toastContainer = document.getElementById("toast-container");
+
+            // Initialize audio controls on load
+            if (inputVolume) {
+                inputVolume.value = chimeVolume;
+                inputVolume.addEventListener("input", (e) => {
+                    chimeVolume = parseFloat(e.target.value);
+                    localStorage.setItem("bmm_chime_volume", chimeVolume);
+                });
+            }
+
+            if (toggleMute) {
+                toggleMute.checked = chimeMuted;
+                toggleMute.addEventListener("change", (e) => {
+                    chimeMuted = e.target.checked;
+                    localStorage.setItem("bmm_chime_muted", chimeMuted);
+                });
+            }
+
+            if (btnTestChime) {
+                btnTestChime.addEventListener("click", () => {
+                    playNewOrderSound(true); // Force chime sound on click regardless of mute toggle
+                });
+            }
+
             // Setup audio chime
-            function playNewOrderSound() {
+            function playNewOrderSound(force = false) {
+                if (chimeMuted && !force) return;
                 try {
                     const ctx = new (window.AudioContext || window.webkitAudioContext)();
                     const now = ctx.currentTime;
@@ -870,7 +1472,7 @@
                         osc.frequency.setValueAtTime(freq, startTime);
                         
                         gain.gain.setValueAtTime(0, startTime);
-                        gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                        gain.gain.linearRampToValueAtTime(chimeVolume * 0.15, startTime + 0.05);
                         gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
                         
                         osc.connect(gain);
@@ -887,24 +1489,69 @@
                 }
             }
 
+            // Toast Notification Spawner
+            function showOrderToast(order) {
+                if (!toastContainer) return;
+                
+                const toast = document.createElement("div");
+                toast.className = "toast-card";
+                
+                const itemsPreview = order.items.map(item => `${item.qty}x ${item.name}`).join(", ");
+                const truncatedItems = itemsPreview.length > 55 ? itemsPreview.substring(0, 52) + "..." : itemsPreview;
+                
+                toast.innerHTML = `
+                    <div class="toast-icon">🛎️</div>
+                    <div class="toast-info">
+                        <div class="toast-title">
+                            <span>New Table ${order.table} Order</span>
+                            <button class="toast-close" aria-label="Close alert">&times;</button>
+                        </div>
+                        <div class="toast-desc">Order #${order.id}: ${truncatedItems}</div>
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Trigger transition
+                setTimeout(() => {
+                    toast.classList.add("show");
+                }, 50);
+                
+                const closeToast = () => {
+                    toast.classList.remove("show");
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+                };
+                
+                toast.querySelector(".toast-close").addEventListener("click", closeToast);
+                
+                // Auto dismiss after 6 seconds
+                setTimeout(closeToast, 6000);
+            }
+
             // Sync from localStorage
             function fetchOrders() {
                 const storedOrders = localStorage.getItem("bmm_global_orders");
                 const parsed = storedOrders ? JSON.parse(storedOrders) : [];
                 
-                // If new order arrived, chime!
+                // If new order arrived, chime & toast!
                 if (parsed.length > ordersList.length) {
-                    // Detect if the new item is actually new or just updated
+                    // Only alert on orders that are actually new to the bar
                     const currentIds = ordersList.map(o => o.id);
-                    const hasNew = parsed.some(o => !currentIds.includes(o.id));
-                    if (hasNew) {
-                        playNewOrderSound();
-                    }
+                    parsed.forEach(o => {
+                        if (!currentIds.includes(o.id) && o.status === "pending") {
+                            playNewOrderSound();
+                            showOrderToast(o);
+                        }
+                    });
                 }
                 
                 ordersList = parsed;
                 renderOrdersBoard();
                 renderMetrics();
+                renderFilterTabs();
+                renderHistoryDrawer();
             }
 
             // Save orders to localStorage
@@ -924,6 +1571,116 @@
                 revenueVal.innerHTML = `<span>$</span>${archivedRevenue.toFixed(2)}`;
             }
 
+            // Bind Filter Tab Buttons
+            document.querySelectorAll(".btn-filter-tab").forEach(tab => {
+                tab.addEventListener("click", (e) => {
+                    document.querySelectorAll(".btn-filter-tab").forEach(t => t.classList.remove("active"));
+                    const target = e.currentTarget;
+                    target.classList.add("active");
+                    currentFilter = target.getAttribute("data-filter");
+                    renderOrdersBoard();
+                });
+            });
+
+            function renderFilterTabs() {
+                const countAll = ordersList.filter(o => o.status !== "completed").length;
+                const countPending = ordersList.filter(o => o.status === "pending").length;
+                const countPreparing = ordersList.filter(o => o.status === "preparing").length;
+                const countReady = ordersList.filter(o => o.status === "ready").length;
+
+                const badAll = document.getElementById("filter-all-count");
+                const badPen = document.getElementById("filter-pending-count");
+                const badPrep = document.getElementById("filter-preparing-count");
+                const badReady = document.getElementById("filter-ready-count");
+
+                if (badAll) badAll.textContent = countAll;
+                if (badPen) badPen.textContent = countPending;
+                if (badPrep) badPrep.textContent = countPreparing;
+                if (badReady) badReady.textContent = countReady;
+            }
+
+            // History Log Drawer triggers
+            if (btnOpenHistory) {
+                btnOpenHistory.addEventListener("click", () => {
+                    historyOverlay.classList.add("active");
+                    renderHistoryDrawer();
+                });
+            }
+
+            if (btnCloseHistory) {
+                btnCloseHistory.addEventListener("click", () => {
+                    historyOverlay.classList.remove("active");
+                });
+            }
+
+            if (historyOverlay) {
+                historyOverlay.addEventListener("click", (e) => {
+                    if (e.target === historyOverlay) historyOverlay.classList.remove("active");
+                });
+            }
+
+            function renderHistoryDrawer() {
+                if (!historyLogsList) return;
+                historyLogsList.innerHTML = "";
+                
+                const archivedOrders = ordersList.filter(o => o.status === "completed");
+                historyTotalCount.textContent = archivedOrders.length;
+                
+                if (archivedOrders.length === 0) {
+                    historyLogsList.innerHTML = `<div class="empty-history-msg">No served orders logged today. Orders served by baristas will appear here.</div>`;
+                    historyBestSeller.textContent = "-";
+                    return;
+                }
+                
+                // Calculate best-selling item counts
+                const productCounts = {};
+                archivedOrders.forEach(order => {
+                    order.items.forEach(item => {
+                        productCounts[item.name] = (productCounts[item.name] || 0) + item.qty;
+                    });
+                });
+                
+                let bestProduct = "-";
+                let maxQty = 0;
+                for (const prod in productCounts) {
+                    if (productCounts[prod] > maxQty) {
+                        maxQty = productCounts[prod];
+                        bestProduct = prod;
+                    }
+                }
+                historyBestSeller.textContent = maxQty > 0 ? `${bestProduct} (${maxQty}x)` : "-";
+                
+                // Sort by served timestamp (newest first)
+                const sortedArchived = [...archivedOrders].sort((a, b) => b.servedAt - a.servedAt);
+                
+                sortedArchived.forEach(order => {
+                    const card = document.createElement("div");
+                    card.className = "history-log-card";
+                    
+                    const timeStr = order.servedAt ? new Date(order.servedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "Served";
+                    
+                    let itemsHtml = "";
+                    order.items.forEach(item => {
+                        itemsHtml += `<div>${item.qty}x ${item.name}</div>`;
+                    });
+                    
+                    card.innerHTML = `
+                        <div class="history-log-card-header">
+                            <div class="history-log-table">Table <span>${order.table}</span></div>
+                            <div class="history-log-time">${timeStr}</div>
+                        </div>
+                        <div class="history-log-items">
+                            ${itemsHtml}
+                        </div>
+                        <div class="history-log-total-row">
+                            <span>Total (incl. tax)</span>
+                            <span>$${order.total.toFixed(2)}</span>
+                        </div>
+                    `;
+                    historyLogsList.appendChild(card);
+                });
+            }
+
             function renderOrdersBoard() {
                 ordersGrid.innerHTML = "";
                 const activeOrders = ordersList.filter(o => o.status !== "completed");
@@ -941,13 +1698,31 @@
                 // Sort orders by timestamp (oldest first for FIFO preparation)
                 activeOrders.sort((a, b) => a.timestamp - b.timestamp);
 
-                activeOrders.forEach(order => {
+                // Filter orders based on active filter tab
+                const filteredOrders = activeOrders.filter(o => currentFilter === "all" || o.status === currentFilter);
+
+                if (filteredOrders.length === 0) {
+                    ordersGrid.innerHTML = `
+                        <div class="no-orders-msg">
+                            No orders found matching the filter tabs.<br>
+                            <span style="font-size:0.8rem; opacity:0.65;">Select other tabs to view orders in different preparation states.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                filteredOrders.forEach(order => {
                     const ticket = document.createElement("div");
-                    ticket.className = `order-ticket status-${order.status}`;
                     
                     // Time elapsed counter
                     const minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
                     const timerText = minutesElapsed === 0 ? "New" : `${minutesElapsed}m ago`;
+                    
+                    // Delay Warning Check (Warning glows red if pending/preparing for more than 5 minutes)
+                    const isDelayed = (order.status === "pending" || order.status === "preparing") && minutesElapsed >= 5;
+                    ticket.className = `order-ticket status-${order.status}${isDelayed ? " ticket-delayed" : ""}`;
+                    
+                    const delayWarningHtml = isDelayed ? `<div class="delay-warning-badge">⚠️ Delayed (${minutesElapsed}m)</div>` : "";
                     
                     let itemsHtml = "";
                     order.items.forEach(item => {
@@ -991,6 +1766,7 @@
                             ${itemsHtml}
                         </div>
                         ${notesHtml}
+                        ${delayWarningHtml}
                         <div class="ticket-footer">
                             <div class="ticket-total-row">
                                 <span>Subtotal</span>
@@ -1031,6 +1807,7 @@
                 } else if (currentStatus === "ready") {
                     // Serve & Archive
                     ordersList[orderIdx].status = "completed";
+                    ordersList[orderIdx].servedAt = Date.now(); // Record served time
                     
                     // Increment served count & revenue
                     servedCount++;
@@ -1090,6 +1867,10 @@
                     "Warm up the lava cake",
                     ""
                 ];
+
+                // Randomize timestamp so some are simulated as old orders (e.g. > 5m ago) for easy testing
+                const timeOffsets = [0, 0, 0, 10 * 60 * 1000]; // 1 out of 4 will be 10 minutes old
+                const offset = timeOffsets[Math.floor(Math.random() * timeOffsets.length)];
                 
                 const fakeOrder = {
                     id: Math.floor(1000 + Math.random() * 9000).toString(),
@@ -1098,7 +1879,7 @@
                     notes: sampleNotes[Math.floor(Math.random() * sampleNotes.length)],
                     status: "pending",
                     total: total,
-                    timestamp: Date.now()
+                    timestamp: Date.now() - offset
                 };
 
                 ordersList.push(fakeOrder);
@@ -1108,11 +1889,15 @@
 
             // Reset Archive stats
             btnClearArchive.addEventListener("click", () => {
-                if (confirm("Reset served count and revenue back to zero?")) {
+                if (confirm("Reset served count, revenue, and order logs back to zero?")) {
                     servedCount = 0;
                     archivedRevenue = 0.00;
                     localStorage.setItem("bmm_served_count", 0);
                     localStorage.setItem("bmm_archived_revenue", "0.00");
+                    
+                    // Clear completed orders from ordersList
+                    ordersList = ordersList.filter(o => o.status !== "completed");
+                    saveOrders();
                     fetchOrders();
                 }
             });
