@@ -1261,6 +1261,7 @@
                     Use this panel to simulate incoming customer table orders to verify the live sync operations.
                 </p>
                 <button id="btn-simulate-order" class="btn-primary" style="width: 100%;">Simulate Client Order</button>
+                <button id="btn-seed-data" class="btn-secondary" style="width: 100%;">Seed Sample Data</button>
                 <button id="btn-clear-archive" class="btn-secondary" style="width: 100%;">Reset Archive Stats</button>
                 
                 <div class="sidebar-divider"></div>
@@ -1473,6 +1474,7 @@
             // Element binds
             const ordersGrid = document.getElementById("orders-grid-element");
             const btnSimulate = document.getElementById("btn-simulate-order");
+            const btnSeedData = document.getElementById("btn-seed-data");
             const btnClearArchive = document.getElementById("btn-clear-archive");
             
             const countActive = document.getElementById("stat-active-count");
@@ -2166,6 +2168,19 @@
                     fetchOrders();
                 }
             });
+
+            // Seed Sample Data manually
+            if (btnSeedData) {
+                btnSeedData.addEventListener("click", () => {
+                    localStorage.removeItem("bmm_seeded");
+                    localStorage.setItem("bmm_global_orders", "[]");
+                    localStorage.setItem("bmm_global_reservations", "[]");
+                    ordersList = [];
+                    reservationsList = [];
+                    seedFakeData();
+                    fetchOrders();
+                });
+            }
 
             // Storage trigger to catch changes in other tabs
             window.addEventListener("storage", () => {
