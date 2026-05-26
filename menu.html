@@ -916,15 +916,17 @@
     <div id="table-select-overlay" class="table-select-overlay">
         <div class="table-select-modal">
             <button class="close-table-select" id="close-table-select" aria-label="Close table selector">&times;</button>
-            <h2>Start <span>Table Session</span></h2>
-            <p>To order fresh brews directly to your table, please enter or select your table number below:</p>
+            <h2>Start <span>Ordering Session</span></h2>
+            <p>To order fresh brews, enter your table number for Dine-In or choose Take-away:</p>
             
             <form id="table-select-form" style="margin-top: 1.5rem;">
                 <div class="input-group">
                     <label for="manual-table-num">Table Number (1 - 50)</label>
-                    <input type="number" id="manual-table-num" min="1" max="50" required placeholder="e.g. 5">
+                    <input type="number" id="manual-table-num" min="1" max="50" placeholder="e.g. 5">
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.5rem;">Start Ordering</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.25rem;">Start Dine-In Session</button>
+                <div style="text-align: center; margin: 0.75rem 0; font-size: 0.8rem; color: var(--cream-muted); opacity: 0.7;">— OR —</div>
+                <button type="button" id="btn-takeaway-select" class="btn-secondary" style="width: 100%;">Order as Take-away 🛍️</button>
             </form>
         </div>
     </div>
