@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew Magic Moments | Portal Login</title>
+    <meta name="description" content="Access the Brew Magic Moments ordering interface or barista administration dashboard.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body.login-body {
+            background-color: var(--bg-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ambient floating light blobs */
+        .login-bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-gold-glow) 0%, transparent 70%);
+            top: -10%;
+            left: -10%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .login-bg-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(200, 164, 93, 0.08) 0%, transparent 60%);
+            bottom: -15%;
+            right: -10%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 540px;
+            background: var(--bg-glass);
+            border: var(--border-glass-hover);
+            border-radius: 16px;
+            padding: 3.5rem 3rem;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-logo {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+        .login-logo span {
+            color: var(--accent-gold);
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: var(--cream-muted);
+            margin-bottom: 3rem;
+        }
+
+        /* Dual role selector cards */
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .role-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--border-glass);
+            border-radius: 12px;
+            padding: 2rem 1rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold-dim);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .role-card.active {
+            border-color: var(--accent-gold);
+            background: rgba(200, 164, 93, 0.06);
+            box-shadow: 0 0 20px rgba(200, 164, 93, 0.1);
+        }
+
+        .role-icon {
+            font-size: 2.2rem;
+            filter: grayscale(0.2);
+            transition: var(--transition-quick);
+        }
+        .role-card.active .role-icon {
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .role-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--cream);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .role-card.active h3 {
+            color: var(--white);
+        }
+
+        /* Form sections wrapper */
+        .login-form-area {
+            position: relative;
+            min-height: 120px;
+        }
+
+        .form-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .form-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Input fields styles */
+        .login-input-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .login-input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--cream-muted);
+            margin-bottom: 0.5rem;
+        }
+        .login-input-group input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--border-glass);
+            border-radius: 6px;
+            color: var(--white);
+            padding: 0.85rem 1rem;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: var(--transition-quick);
+        }
+        .login-input-group input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(200, 164, 93, 0.1);
+        }
+
+        .error-message {
+            color: #c85d5d;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes float-beans {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(15deg); }
+        }
+        .floating-bean-decor {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.15;
+            animation: float-beans 6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2.5rem 1.5rem;
+            }
+            .role-selector {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="login-body">
+
+    <!-- Ambient glows -->
+    <div class="login-bg-glow"></div>
+    <div class="login-bg-glow-2"></div>
+
+    <!-- Floating Coffee Beans Decoration -->
+    <span class="floating-bean-decor" style="top: 15%; right: 15%; animation-delay: 0s;">☕</span>
+    <span class="floating-bean-decor" style="bottom: 15%; left: 15%; animation-delay: 2s;">☕</span>
+    <span class="floating-bean-decor" style="top: 70%; right: 20%; animation-delay: 4s;">☕</span>
+
+    <div class="login-container">
+        <div class="login-logo">Brew <span>Magic</span> Moments</div>
+        <div class="login-subtitle">Select Portal to Access Sanctuary</div>
+
+        <!-- Role Selectors -->
+        <div class="role-selector">
+            <div class="role-card active" id="role-customer">
+                <div class="role-icon">🛒</div>
+                <h3>Customer</h3>
+            </div>
+            <div class="role-card" id="role-staff">
+                <div class="role-icon">🧑‍🍳</div>
+                <h3>Barista Staff</h3>
+            </div>
+        </div>
+
+        <!-- Forms Area -->
+        <div class="login-form-area">
+            
+            <!-- Customer Section -->
+            <div class="form-section active" id="form-customer">
+                <p style="color: var(--cream-muted); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">
+                    Browse our luxury menu, scan table cards, and order single-origin brews directly from your device.
+                </p>
+                <button id="btn-enter-customer" class="btn-primary" style="width: 100%;">Enter Café Shop</button>
+            </div>
+
+            <!-- Staff Section -->
+            <div class="form-section" id="form-staff">
+                <form id="staff-login-form">
+                    <div class="login-input-group">
+                        <label for="username">Barista Username</label>
+                        <input type="text" id="username" placeholder="e.g. admin" required>
+                    </div>
+                    
+                    <div class="login-input-group" style="margin-bottom: 1rem;">
+                        <label for="password">Security Password</label>
+                        <input type="password" id="password" placeholder="e.g. password" required>
+                    </div>
+
+                    <div class="error-message" id="login-error">Invalid staff credentials. Please try again.</div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%;">Authorize Access</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnCustomer = document.getElementById("role-customer");
+            const btnStaff = document.getElementById("role-staff");
+            
+            const formCustomer = document.getElementById("form-customer");
+            const formStaff = document.getElementById("form-staff");
+            
+            const staffForm = document.getElementById("staff-login-form");
+            const errorMsg = document.getElementById("login-error");
+            
+            // Switch roles
+            btnCustomer.addEventListener("click", () => {
+                btnCustomer.classList.add("active");
+                btnStaff.classList.remove("active");
+                
+                formCustomer.classList.add("active");
+                formStaff.classList.remove("active");
+                errorMsg.style.display = "none";
+            });
+
+            btnStaff.addEventListener("click", () => {
+                btnStaff.classList.add("active");
+                btnCustomer.classList.remove("active");
+                
+                formStaff.classList.add("active");
+                formCustomer.classList.remove("active");
+            });
+
+            // Customer Entry
+            document.getElementById("btn-enter-customer").addEventListener("click", () => {
+                window.location.href = "index.html";
+            });
+
+            // Staff Authentication
+            staffForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const userVal = document.getElementById("username").value.trim();
+                const passVal = document.getElementById("password").value.trim();
+                
+                // Demo credentials: admin / password
+                if (userVal === "admin" && passVal === "password") {
+                    errorMsg.style.display = "none";
+                    
+                    // Direct redirect to staff page
+                    window.location.href = "staff.html";
+                } else {
+                    errorMsg.style.display = "block";
+                    // Shake container animation
+                    const container = document.querySelector(".login-container");
+                    container.style.animation = "shake 0.4s ease";
+                    setTimeout(() => {
+                        container.style.animation = "";
+                    }, 400);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
