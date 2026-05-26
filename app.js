@@ -1110,28 +1110,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 title.textContent = "Order Confirmed!";
                 desc.textContent = `Order placed for Table ${currentTable}! Estimated delivery: 5 minutes.`;
                 
+                const orderId = `BMM-${Math.floor(1000 + Math.random() * 9000)}`;
+                const notesVal = document.getElementById("cart-notes").value.trim();
+                const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+                const total = subtotal * 1.08;
+
+                // Save to shared global orders in localStorage for staff terminal
+                const globalOrders = JSON.parse(localStorage.getItem("bmm_global_orders") || "[]");
+                const newOrder = {
+                    id: orderId,
+                    table: currentTable.toString(),
+                    items: cart.map(item => ({ name: item.name, price: item.price, qty: item.qty })),
+                    notes: notesVal,
+                    status: "pending",
+                    total: total,
+                    timestamp: Date.now()
+                };
+                globalOrders.push(newOrder);
+                localStorage.setItem("bmm_global_orders", JSON.stringify(globalOrders));
+
                 // Clear cart state
                 cart = [];
                 localStorage.removeItem("bmm_cart_table_" + currentTable);
                 updateBadgeCount();
                 
+                // Clear notes textarea
+                document.getElementById("cart-notes").value = "";
+                
                 // Set Order status tracking
-                const orderId = `BMM-${Math.floor(1000 + Math.random() * 9000)}`;
-                const expiresAt = Date.now() + 5 * 60 * 1000;
                 localStorage.setItem("bmm_order_id", orderId);
-                localStorage.setItem("bmm_order_expires", expiresAt);
+                
+                // Trigger local event so other windows/tabs catch it immediately
+                window.dispatchEvent(new Event("storage"));
                 
                 // Trigger order tracking widget
                 setTimeout(() => {
                     stepper.className = "checkout-stepper-overlay";
                     document.getElementById("cart-drawer-overlay").classList.remove("active");
-                    startOrderStatusTimer(orderId, expiresAt);
+                    startOrderStatusTimer(orderId);
                 }, 2000);
             }
         });
     }
 
-    function startOrderStatusTimer(orderId, expiresAt) {
+    function startOrderStatusTimer(orderId) {
         const widget = document.getElementById("order-status-widget");
         const title = document.getElementById("order-widget-title");
         const timerText = document.getElementById("order-widget-timer");
@@ -1143,36 +1165,63 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (orderTimerInterval) clearInterval(orderTimerInterval);
         
-        function updateTimer() {
-            const remaining = expiresAt - Date.now();
-            if (remaining <= 0) {
-                timerText.innerHTML = "Status: Ready! Enjoy your brew ☕";
-                timerText.style.color = "#5dc87b";
-                widget.style.borderColor = "#5dc87b";
+        function checkStatus() {
+            const globalOrders = JSON.parse(localStorage.getItem("bmm_global_orders") || "[]");
+            const order = globalOrders.find(o => o.id === orderId);
+            
+            if (!order) {
+                // Check if it's completely cleared or archived
+                timerText.textContent = "Status: Served/Archived";
+                timerText.style.color = "var(--accent-gold)";
+                widget.style.borderColor = "var(--accent-gold)";
+                
+                setTimeout(() => {
+                    widget.classList.remove("active");
+                }, 5000);
+                
+                localStorage.removeItem("bmm_order_id");
                 clearInterval(orderTimerInterval);
-            } else {
-                const minutes = Math.floor(remaining / 60000);
-                const seconds = Math.floor((remaining % 60000) / 1000);
-                timerText.textContent = `Status: Preparing (${minutes}:${seconds < 10 ? '0' : ''}${seconds})`;
+                window.removeEventListener("storage", checkStatus);
+                return;
+            }
+            
+            // Render specific text by state
+            if (order.status === "pending") {
+                timerText.textContent = "Status: Sent to Kitchen (Waiting...)";
+                timerText.style.color = "var(--cream-muted)";
+                widget.style.borderColor = "rgba(200, 164, 93, 0.15)";
+            } else if (order.status === "preparing") {
+                timerText.textContent = "Status: Barista preparing your brew... ☕";
+                timerText.style.color = "#c8a45d"; // Gold
+                widget.style.borderColor = "#c8a45d";
+            } else if (order.status === "ready") {
+                timerText.innerHTML = "Status: Ready to Serve! Enjoy ☕";
+                timerText.style.color = "#5dc87b"; // Active Green
+                widget.style.borderColor = "#5dc87b";
+            } else if (order.status === "completed") {
+                timerText.textContent = "Status: Served! Enjoy your moments. ✨";
+                timerText.style.color = "var(--accent-gold)";
+                widget.style.borderColor = "var(--accent-gold)";
+                
+                localStorage.removeItem("bmm_order_id");
+                setTimeout(() => {
+                    widget.classList.remove("active");
+                }, 5000);
+                
+                clearInterval(orderTimerInterval);
+                window.removeEventListener("storage", checkStatus);
             }
         }
         
-        updateTimer();
-        orderTimerInterval = setInterval(updateTimer, 1000);
+        checkStatus();
+        orderTimerInterval = setInterval(checkStatus, 2000);
+        window.addEventListener("storage", checkStatus);
     }
 
     function restoreOrderStatus() {
         const orderId = localStorage.getItem("bmm_order_id");
-        const expiresAt = localStorage.getItem("bmm_order_expires");
-        
-        if (orderId && expiresAt) {
-            const expires = parseInt(expiresAt, 10);
-            if (expires > Date.now()) {
-                startOrderStatusTimer(orderId, expires);
-            } else {
-                localStorage.removeItem("bmm_order_id");
-                localStorage.removeItem("bmm_order_expires");
-            }
+        if (orderId) {
+            startOrderStatusTimer(orderId);
         }
     }
 
