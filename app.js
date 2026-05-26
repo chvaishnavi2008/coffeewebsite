@@ -572,6 +572,610 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    /* --- QR MENU & TABLE ORDERING SYSTEM --- */
+    let currentTable = null;
+    let cart = [];
+    let orderTimerInterval = null;
+
+    function initQROrdering() {
+        // Detect table parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlTable = urlParams.get("table");
+        
+        // Check localStorage for table if URL param isn't set
+        const cachedTable = localStorage.getItem("bmm_active_table");
+        
+        if (urlTable) {
+            currentTable = parseInt(urlTable, 10);
+            localStorage.setItem("bmm_active_table", currentTable);
+        } else if (cachedTable) {
+            currentTable = parseInt(cachedTable, 10);
+        }
+
+        // Dynamically inject "Add to Order" buttons on all menu cards
+        injectOrderButtons();
+
+        // Bind interactive elements
+        setupQROrderingEvents();
+
+        // If table is active, set up table state
+        if (currentTable) {
+            activateTableSession(currentTable);
+        } else {
+            deactivateTableSession();
+        }
+
+        // Initialize QR code generator dashboard
+        initQRCodeGenerator();
+        
+        // Restore running timers if any
+        restoreOrderStatus();
+    }
+
+    function injectOrderButtons() {
+        const cards = document.querySelectorAll(".menu-card");
+        cards.forEach(card => {
+            const titleEl = card.querySelector("h3");
+            const priceEl = card.querySelector(".menu-price");
+            if (!titleEl || !priceEl) return;
+            
+            const name = titleEl.textContent.trim();
+            const priceText = priceEl.textContent.trim();
+            const price = parseFloat(priceText.replace("$", ""));
+            const imgEl = card.querySelector(".menu-img-container img");
+            const img = imgEl ? imgEl.src : "";
+            
+            // Clear but preserve text
+            priceEl.innerHTML = `<span>${priceText}</span>`;
+            
+            // Create "+" button
+            const addBtn = document.createElement("button");
+            addBtn.className = "btn-add-order";
+            addBtn.innerHTML = `
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="display:inline-block; vertical-align:middle;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg> Add
+            `;
+            addBtn.setAttribute("data-name", name);
+            addBtn.setAttribute("data-price", price);
+            addBtn.setAttribute("data-img", img);
+            
+            priceEl.appendChild(addBtn);
+            
+            addBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                addToCart(name, price, img);
+            });
+        });
+    }
+
+    function setupQROrderingEvents() {
+        // Floating action buttons
+        const floatingCart = document.getElementById("floating-cart");
+        const floatingQRHub = document.getElementById("floating-qr-hub");
+        
+        const cartOverlay = document.getElementById("cart-drawer-overlay");
+        const closeCart = document.getElementById("close-cart");
+        
+        const qrOverlay = document.getElementById("qr-modal-overlay");
+        const closeQRModal = document.getElementById("close-qr-modal");
+        
+        const tableSelectOverlay = document.getElementById("table-select-overlay");
+        const closeTableSelect = document.getElementById("close-table-select");
+        const tableSelectForm = document.getElementById("table-select-form");
+        
+        const btnExitTable = document.getElementById("btn-exit-table");
+        
+        // Cart drawer open/close
+        if (floatingCart) {
+            floatingCart.addEventListener("click", () => {
+                if (currentTable === null) {
+                    // Prompt table selection
+                    openTableSelector();
+                } else {
+                    cartOverlay.classList.add("active");
+                    renderCart();
+                }
+            });
+        }
+        
+        if (closeCart) {
+            closeCart.addEventListener("click", () => cartOverlay.classList.remove("active"));
+        }
+        
+        if (cartOverlay) {
+            cartOverlay.addEventListener("click", (e) => {
+                if (e.target === cartOverlay) cartOverlay.classList.remove("active");
+            });
+        }
+        
+        // QR Hub generator open/close
+        if (floatingQRHub) {
+            floatingQRHub.addEventListener("click", () => {
+                qrOverlay.classList.add("active");
+                regenerateQRCode();
+            });
+        }
+        
+        if (closeQRModal) {
+            closeQRModal.addEventListener("click", () => qrOverlay.classList.remove("active"));
+        }
+        
+        if (qrOverlay) {
+            qrOverlay.addEventListener("click", (e) => {
+                if (e.target === qrOverlay) qrOverlay.classList.remove("active");
+            });
+        }
+        
+        // Manual Table select overlay
+        if (closeTableSelect) {
+            closeTableSelect.addEventListener("click", () => tableSelectOverlay.classList.remove("active"));
+        }
+        
+        if (tableSelectOverlay) {
+            tableSelectOverlay.addEventListener("click", (e) => {
+                if (e.target === tableSelectOverlay) tableSelectOverlay.classList.remove("active");
+            });
+        }
+        
+        if (tableSelectForm) {
+            tableSelectForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const tableNum = parseInt(document.getElementById("manual-table-num").value, 10);
+                if (tableNum > 0 && tableNum <= 50) {
+                    currentTable = tableNum;
+                    localStorage.setItem("bmm_active_table", currentTable);
+                    activateTableSession(currentTable);
+                    tableSelectOverlay.classList.remove("active");
+                    
+                    // Open cart after table is set
+                    setTimeout(() => {
+                        cartOverlay.classList.add("active");
+                        renderCart();
+                    }, 300);
+                }
+            });
+        }
+        
+        // Exit Table Session
+        if (btnExitTable) {
+            btnExitTable.addEventListener("click", () => {
+                if (confirm("Are you sure you want to end your dining session at Table " + currentTable + "?")) {
+                    deactivateTableSession();
+                }
+            });
+        }
+        
+        // Place Order button action
+        const placeOrderBtn = document.getElementById("place-order-btn");
+        if (placeOrderBtn) {
+            placeOrderBtn.addEventListener("click", placeOrder);
+        }
+        
+        // Order Widget Dismiss
+        const closeStatusWidget = document.getElementById("close-status-widget");
+        if (closeStatusWidget) {
+            closeStatusWidget.addEventListener("click", () => {
+                document.getElementById("order-status-widget").classList.remove("active");
+                localStorage.removeItem("bmm_order_id");
+                localStorage.removeItem("bmm_order_expires");
+                if (orderTimerInterval) clearInterval(orderTimerInterval);
+            });
+        }
+    }
+
+    function openTableSelector() {
+        const tableSelectOverlay = document.getElementById("table-select-overlay");
+        if (tableSelectOverlay) {
+            tableSelectOverlay.classList.add("active");
+            document.getElementById("manual-table-num").focus();
+        }
+    }
+
+    function activateTableSession(tableNum) {
+        currentTable = tableNum;
+        
+        // Show Active Pill
+        const activePill = document.getElementById("active-table-pill");
+        const activePillNum = document.getElementById("active-table-number");
+        if (activePill && activePillNum) {
+            activePillNum.textContent = tableNum;
+            activePill.classList.add("active");
+        }
+        
+        // Update labels
+        const cartLabel = document.getElementById("cart-table-label");
+        if (cartLabel) {
+            cartLabel.textContent = `Table ${tableNum}`;
+        }
+        
+        // Load table cart from localStorage
+        const storedCart = localStorage.getItem("bmm_cart_table_" + tableNum);
+        if (storedCart) {
+            cart = JSON.parse(storedCart);
+        } else {
+            cart = [];
+        }
+        
+        updateBadgeCount();
+    }
+
+    function deactivateTableSession() {
+        // Clear variables
+        localStorage.removeItem("bmm_active_table");
+        currentTable = null;
+        cart = [];
+        
+        // Hide pill
+        const activePill = document.getElementById("active-table-pill");
+        if (activePill) activePill.classList.remove("active");
+        
+        // Update badge
+        updateBadgeCount();
+        
+        // Close overlays
+        document.getElementById("cart-drawer-overlay").classList.remove("active");
+        
+        // Clean URL
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("table");
+        window.history.replaceState({}, document.title, cleanUrl.toString());
+    }
+
+    function addToCart(name, price, img) {
+        if (currentTable === null) {
+            openTableSelector();
+            return;
+        }
+
+        const existingItem = cart.find(item => item.name === name);
+        if (existingItem) {
+            existingItem.qty++;
+        } else {
+            cart.push({ name, price, img, qty: 1 });
+        }
+
+        // Save
+        localStorage.setItem("bmm_cart_table_" + currentTable, JSON.stringify(cart));
+        
+        // Update Badge and animate floating cart button
+        updateBadgeCount();
+        
+        const floatingCart = document.getElementById("floating-cart");
+        if (floatingCart) {
+            gsap.fromTo(floatingCart, 
+                { scale: 1 }, 
+                { scale: 1.2, duration: 0.15, yoyo: true, repeat: 1, ease: "power1.out" }
+            );
+        }
+        
+        // Render if drawer is open
+        if (document.getElementById("cart-drawer-overlay").classList.contains("active")) {
+            renderCart();
+        }
+    }
+
+    function renderCart() {
+        const cartItemsContainer = document.getElementById("cart-items");
+        if (!cartItemsContainer) return;
+        
+        cartItemsContainer.innerHTML = "";
+        
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = `<div class="empty-cart-msg">Your cart is empty. Tap the "+" on menu items to add them!</div>`;
+            updatePrices(0);
+            return;
+        }
+
+        let subtotal = 0;
+        
+        cart.forEach(item => {
+            subtotal += item.price * item.qty;
+            
+            const cartItem = document.createElement("div");
+            cartItem.className = "cart-item";
+            cartItem.innerHTML = `
+                <div class="cart-item-img">
+                    <img src="${item.img}" alt="${item.name}">
+                </div>
+                <div class="cart-item-info">
+                    <h4>${item.name}</h4>
+                    <div class="cart-item-price">$${(item.price).toFixed(2)}</div>
+                </div>
+                <div class="cart-item-qty-controls">
+                    <button class="qty-btn dec-btn" data-name="${item.name}">-</button>
+                    <span class="qty-val">${item.qty}</span>
+                    <button class="qty-btn inc-btn" data-name="${item.name}">+</button>
+                </div>
+                <button class="btn-remove-item" data-name="${item.name}" aria-label="Remove item">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            `;
+            cartItemsContainer.appendChild(cartItem);
+        });
+
+        // Add event listeners for controls
+        cartItemsContainer.querySelectorAll(".dec-btn").forEach(btn => {
+            btn.addEventListener("click", () => adjustQty(btn.getAttribute("data-name"), -1));
+        });
+        
+        cartItemsContainer.querySelectorAll(".inc-btn").forEach(btn => {
+            btn.addEventListener("click", () => adjustQty(btn.getAttribute("data-name"), 1));
+        });
+        
+        cartItemsContainer.querySelectorAll(".btn-remove-item").forEach(btn => {
+            btn.addEventListener("click", () => adjustQty(btn.getAttribute("data-name"), "remove"));
+        });
+
+        updatePrices(subtotal);
+    }
+
+    function adjustQty(name, amount) {
+        const itemIdx = cart.findIndex(item => item.name === name);
+        if (itemIdx === -1) return;
+
+        if (amount === "remove") {
+            cart.splice(itemIdx, 1);
+        } else {
+            cart[itemIdx].qty += amount;
+            if (cart[itemIdx].qty <= 0) {
+                cart.splice(itemIdx, 1);
+            }
+        }
+
+        localStorage.setItem("bmm_cart_table_" + currentTable, JSON.stringify(cart));
+        updateBadgeCount();
+        renderCart();
+    }
+
+    function updatePrices(subtotal) {
+        const taxRate = 0.08;
+        const tax = subtotal * taxRate;
+        const total = subtotal + tax;
+
+        document.getElementById("cart-subtotal").textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById("cart-tax").textContent = `$${tax.toFixed(2)}`;
+        document.getElementById("cart-total").textContent = `$${total.toFixed(2)}`;
+    }
+
+    function updateBadgeCount() {
+        const count = cart.reduce((acc, item) => acc + item.qty, 0);
+        const badge = document.getElementById("cart-badge-count");
+        if (badge) {
+            badge.textContent = count;
+            if (count > 0) {
+                badge.classList.add("active");
+            } else {
+                badge.classList.remove("active");
+            }
+        }
+    }
+
+    /* Print / Download / Generator QR Controller */
+    let qrcodeInstance = null;
+
+    function initQRCodeGenerator() {
+        const select = document.getElementById("qr-table-select");
+        if (select) {
+            select.addEventListener("change", regenerateQRCode);
+        }
+
+        const btnSimulate = document.getElementById("btn-simulate-scan");
+        if (btnSimulate) {
+            btnSimulate.addEventListener("click", () => {
+                const tableNum = document.getElementById("qr-table-select").value;
+                const cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.set("table", tableNum);
+                
+                // Hide modal
+                document.getElementById("qr-modal-overlay").classList.remove("active");
+                
+                // Trigger transitions and route
+                gsap.to(window, {
+                    scrollTo: "#menu",
+                    duration: 1.2,
+                    ease: "power3.inOut",
+                    onComplete: () => {
+                        window.location.href = cleanUrl.toString();
+                    }
+                });
+            });
+        }
+
+        const btnDownload = document.getElementById("btn-download-qr");
+        if (btnDownload) {
+            btnDownload.addEventListener("click", downloadQRCode);
+        }
+
+        const btnPrint = document.getElementById("btn-print-qr");
+        if (btnPrint) {
+            btnPrint.addEventListener("click", () => {
+                window.print();
+            });
+        }
+    }
+
+    function regenerateQRCode() {
+        const tableNum = document.getElementById("qr-table-select").value;
+        const currentUrl = new URL(window.location.href);
+        currentUrl.search = "";
+        currentUrl.searchParams.set("table", tableNum);
+        
+        document.getElementById("qr-card-table-num").textContent = `Table ${tableNum}`;
+        
+        const container = document.getElementById("qr-code-element");
+        if (!container) return;
+        
+        container.innerHTML = "";
+        
+        qrcodeInstance = new QRCode(container, {
+            text: currentUrl.toString(),
+            width: 256,
+            height: 256,
+            colorDark: "#14100d",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+
+    function downloadQRCode() {
+        const tableNum = document.getElementById("qr-table-select").value;
+        const canvas = document.querySelector("#qr-code-element canvas");
+        const img = document.querySelector("#qr-code-element img");
+        
+        let dataUrl = "";
+        if (canvas) {
+            dataUrl = canvas.toDataURL("image/png");
+        } else if (img && img.src && img.src.startsWith("data:image")) {
+            dataUrl = img.src;
+        }
+
+        if (dataUrl) {
+            const link = document.createElement("a");
+            link.href = dataUrl;
+            link.download = `bmm_table_${tableNum}_qr.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            alert("Generating QR Code... please click again.");
+        }
+    }
+
+    /* Place simulated kitchen order */
+    function placeOrder() {
+        if (cart.length === 0) {
+            alert("Your cart is empty! Please add some brews first.");
+            return;
+        }
+
+        const stepper = document.getElementById("checkout-stepper");
+        const title = document.getElementById("stepper-title");
+        const desc = document.getElementById("stepper-desc");
+        const circle = document.querySelector(".stepper-spinner circle");
+        
+        const node1 = document.getElementById("step-node-1");
+        const node2 = document.getElementById("step-node-2");
+        const node3 = document.getElementById("step-node-3");
+
+        // Open Stepper Panel
+        stepper.className = "checkout-stepper-overlay active";
+        
+        // Reset steps
+        node1.className = "step-node active";
+        node2.className = "step-node";
+        node3.className = "step-node";
+        
+        title.textContent = "Connecting to Barista";
+        desc.textContent = "Transmitting order to the bar kitchen server...";
+        
+        circle.style.strokeDashoffset = 283;
+        
+        const tl = gsap.timeline();
+        
+        // Step 1: Sending Order
+        tl.to(circle, {
+            strokeDashoffset: 190,
+            duration: 1.5,
+            ease: "none",
+            onComplete: () => {
+                node1.className = "step-node completed";
+                node2.className = "step-node active";
+                title.textContent = "Barista Reviewing";
+                desc.textContent = "Your barista is calibrating extraction temp & pressure variables...";
+            }
+        });
+        
+        // Step 2: Barista Accepting
+        tl.to(circle, {
+            strokeDashoffset: 95,
+            duration: 2.0,
+            ease: "none",
+            onComplete: () => {
+                node2.className = "step-node completed";
+                node3.className = "step-node active";
+                title.textContent = "Finalizing Extraction Setup";
+                desc.textContent = "Grinding fresh single-origin beans and pre-heating cups...";
+            }
+        });
+        
+        // Step 3: Preparing
+        tl.to(circle, {
+            strokeDashoffset: 0,
+            duration: 1.5,
+            ease: "none",
+            onComplete: () => {
+                node3.className = "step-node completed";
+                stepper.classList.add("success");
+                title.textContent = "Order Confirmed!";
+                desc.textContent = `Order placed for Table ${currentTable}! Estimated delivery: 5 minutes.`;
+                
+                // Clear cart state
+                cart = [];
+                localStorage.removeItem("bmm_cart_table_" + currentTable);
+                updateBadgeCount();
+                
+                // Set Order status tracking
+                const orderId = `BMM-${Math.floor(1000 + Math.random() * 9000)}`;
+                const expiresAt = Date.now() + 5 * 60 * 1000;
+                localStorage.setItem("bmm_order_id", orderId);
+                localStorage.setItem("bmm_order_expires", expiresAt);
+                
+                // Trigger order tracking widget
+                setTimeout(() => {
+                    stepper.className = "checkout-stepper-overlay";
+                    document.getElementById("cart-drawer-overlay").classList.remove("active");
+                    startOrderStatusTimer(orderId, expiresAt);
+                }, 2000);
+            }
+        });
+    }
+
+    function startOrderStatusTimer(orderId, expiresAt) {
+        const widget = document.getElementById("order-status-widget");
+        const title = document.getElementById("order-widget-title");
+        const timerText = document.getElementById("order-widget-timer");
+        
+        if (!widget || !title || !timerText) return;
+        
+        title.textContent = `Order #${orderId}`;
+        widget.classList.add("active");
+        
+        if (orderTimerInterval) clearInterval(orderTimerInterval);
+        
+        function updateTimer() {
+            const remaining = expiresAt - Date.now();
+            if (remaining <= 0) {
+                timerText.innerHTML = "Status: Ready! Enjoy your brew ☕";
+                timerText.style.color = "#5dc87b";
+                widget.style.borderColor = "#5dc87b";
+                clearInterval(orderTimerInterval);
+            } else {
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                timerText.textContent = `Status: Preparing (${minutes}:${seconds < 10 ? '0' : ''}${seconds})`;
+            }
+        }
+        
+        updateTimer();
+        orderTimerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function restoreOrderStatus() {
+        const orderId = localStorage.getItem("bmm_order_id");
+        const expiresAt = localStorage.getItem("bmm_order_expires");
+        
+        if (orderId && expiresAt) {
+            const expires = parseInt(expiresAt, 10);
+            if (expires > Date.now()) {
+                startOrderStatusTimer(orderId, expires);
+            } else {
+                localStorage.removeItem("bmm_order_id");
+                localStorage.removeItem("bmm_order_expires");
+            }
+        }
+    }
+
     /* --- MAIN SETUP INITIATOR --- */
     async function init() {
         // 1. Preload image assets
@@ -599,6 +1203,9 @@ document.addEventListener("DOMContentLoaded", () => {
         initBookingModal();
         initNewsletterForm();
         initRoadmapTimeline();
+
+        // 8. QR Menu & Table Ordering initialization
+        initQROrdering();
     }
 
     init();
