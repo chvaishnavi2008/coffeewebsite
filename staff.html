@@ -34,10 +34,7 @@
         }
 
         body.staff-body {
-            background-color: #0B0A08;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(200, 164, 93, 0.05) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(200, 164, 93, 0.03) 0%, transparent 55%);
+            background-color: transparent;
             min-height: 100vh;
             color: var(--cream);
             font-family: var(--font-body);
@@ -638,9 +635,20 @@
 </head>
 <body class="staff-body">
 
-    <!-- Ambient background glows -->
-    <div class="staff-bg-glow"></div>
-    <div class="staff-bg-glow-2"></div>
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="loader-logo">Brew <span>Magic</span> Moments</div>
+        <div class="loader-bar-bg">
+            <div class="loader-bar" id="loader-bar"></div>
+        </div>
+        <div class="loader-percent" id="loader-percent">0%</div>
+    </div>
+
+    <!-- CANVAS BACKGROUND (FIXED AUTOPLAY) -->
+    <div class="canvas-container">
+        <canvas id="coffee-canvas"></canvas>
+        <div class="canvas-overlay"></div>
+    </div>
 
     <!-- Top Navigation Header -->
     <header class="staff-nav">
@@ -716,11 +724,122 @@
     <!-- Scripting Dashboard Logic -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // --- CANVAS PRELOAD & AUTOPLAY (SAME AS CUSTOMER MENU) ---
+            const TOTAL_FRAMES = 151;
+            const images = [];
+            const canvas = document.getElementById("coffee-canvas");
+            const ctx = canvas ? canvas.getContext("2d") : null;
+            const preloader = document.getElementById("preloader");
+            const loaderBar = document.getElementById("loader-bar");
+            const loaderPercent = document.getElementById("loader-percent");
+
+            let currentAutoplayFrame = 0;
+            let autoplayInterval = null;
+
+            const pad = (num, size) => {
+                let s = num + "";
+                while (s.length < size) s = "0" + s;
+                return s;
+            };
+
+            const getFramePath = (index) => {
+                return `./ezgif-frame-${pad(index, 3)}.jpg`;
+            };
+
+            let loadedCount = 0;
+            function preloadImages() {
+                return new Promise((resolve) => {
+                    if (!canvas || !ctx) {
+                        if (preloader) preloader.classList.add("loaded");
+                        resolve();
+                        return;
+                    }
+                    
+                    const handleLoadOrError = () => {
+                        loadedCount++;
+                        const progress = Math.round((loadedCount / TOTAL_FRAMES) * 100);
+                        
+                        if (loaderBar) loaderBar.style.width = `${progress}%`;
+                        if (loaderPercent) loaderPercent.textContent = `${progress}%`;
+                        
+                        if (loadedCount === TOTAL_FRAMES) {
+                            setTimeout(() => {
+                                if (preloader) preloader.classList.add("loaded");
+                                resolve();
+                            }, 500);
+                        }
+                    };
+
+                    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+                        const img = new Image();
+                        img.onload = handleLoadOrError;
+                        img.onerror = handleLoadOrError;
+                        img.src = getFramePath(i);
+                        images.push(img);
+                    }
+                });
+            }
+
+            function drawImageCover(ctx, img) {
+                if (!canvas) return;
+                const canvasW = canvas.width;
+                const canvasH = canvas.height;
+                const imgW = img.width || 800;
+                const imgH = img.height || 450;
+
+                const imgRatio = imgW / imgH;
+                const canvasRatio = canvasW / canvasH;
+
+                let renderW, renderH, cx, cy;
+
+                if (canvasRatio > imgRatio) {
+                    renderW = canvasW;
+                    renderH = canvasW / imgRatio;
+                    cx = 0;
+                    cy = (canvasH - renderH) / 2;
+                } else {
+                    renderW = canvasH * imgRatio;
+                    renderH = canvasH;
+                    cx = (canvasW - renderW) / 2;
+                    cy = 0;
+                }
+
+                ctx.clearRect(0, 0, canvasW, canvasH);
+                ctx.drawImage(img, cx, cy, renderW, renderH);
+            }
+
+            function renderFrame(index) {
+                const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.floor(index)));
+                const img = images[frameIndex];
+                if (img && img.complete && ctx) {
+                    drawImageCover(ctx, img);
+                }
+            }
+
+            function resizeCanvas() {
+                if (!canvas) return;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                renderFrame(currentAutoplayFrame);
+            }
+
+            function startHeroAutoplay() {
+                if (autoplayInterval) clearInterval(autoplayInterval);
+                autoplayInterval = setInterval(() => {
+                    currentAutoplayFrame = (currentAutoplayFrame + 1) % 45; // Autoplay loops first 45 frames
+                    renderFrame(currentAutoplayFrame);
+                }, 50);
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+
             // Check auth state (must have logged in or we redirect, but since it's client demo we let it be)
             const btnLogout = document.getElementById("btn-logout");
-            btnLogout.addEventListener("click", () => {
-                window.location.href = "index.html";
-            });
+            if (btnLogout) {
+                btnLogout.addEventListener("click", () => {
+                    window.location.href = "index.html";
+                });
+            }
 
             // State variables
             let ordersList = [];
@@ -1011,6 +1130,14 @@
 
             // Interval to sync orders list from localStorage (handles file:// tabs or sandbox limits)
             setInterval(fetchOrders, 1500);
+
+            // Initial load for canvas and autoplay
+            async function initCanvas() {
+                await preloadImages();
+                resizeCanvas();
+                startHeroAutoplay();
+            }
+            initCanvas();
         });
     </script>
 </body>
