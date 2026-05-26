@@ -7,31 +7,84 @@
     <meta name="description" content="Barista terminal for managing active table orders.">
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Modern Scrollbar for Staff Terminal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0A08;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #251D16;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C8A45D;
+        }
+
         body.staff-body {
-            background-color: var(--bg-main);
+            background-color: #0B0A08;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(200, 164, 93, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(200, 164, 93, 0.03) 0%, transparent 55%);
             min-height: 100vh;
             color: var(--cream);
             font-family: var(--font-body);
-            padding: 2rem;
+            padding: 2.5rem;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient floating light glows */
+        .staff-bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(200, 164, 93, 0.05) 0%, transparent 70%);
+            top: 15%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(80px);
+        }
+
+        .staff-bg-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(200, 164, 93, 0.03) 0%, transparent 70%);
+            bottom: -10%;
+            right: -5%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(80px);
         }
 
         .staff-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 1.5rem;
-            border-bottom: var(--border-glass-hover);
+            padding: 1.25rem 2.5rem;
+            background: rgba(20, 16, 13, 0.6);
+            border: 1px solid rgba(200, 164, 93, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .staff-logo {
             font-family: var(--font-heading);
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
             color: var(--white);
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }
         .staff-logo span {
@@ -45,79 +98,121 @@
         }
 
         .staff-status-badge {
-            background: rgba(93, 200, 123, 0.1);
+            background: rgba(93, 200, 123, 0.08);
             color: #5dc87b;
             border: 1px solid rgba(93, 200, 123, 0.2);
-            padding: 0.4rem 0.85rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
             font-family: var(--font-heading);
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            box-shadow: 0 0 15px rgba(93, 200, 123, 0.05);
         }
 
         .staff-status-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             background-color: #5dc87b;
             border-radius: 50%;
-            box-shadow: 0 0 8px #5dc87b;
+            box-shadow: 0 0 10px #5dc87b;
             display: inline-block;
+            animation: pulse-green-glow-badge 1.8s infinite;
         }
 
         .btn-logout {
-            background: transparent;
-            border: var(--border-glass);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--cream-muted);
-            padding: 0.45rem 1rem;
-            border-radius: 4px;
+            padding: 0.5rem 1.25rem;
+            border-radius: 30px;
             font-family: var(--font-heading);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
             cursor: pointer;
             text-transform: uppercase;
+            letter-spacing: 0.08em;
             transition: var(--transition-quick);
         }
         .btn-logout:hover {
-            color: #c85d5d;
-            border-color: rgba(200, 93, 93, 0.25);
-            background: rgba(200, 93, 93, 0.05);
+            color: #ffffff;
+            border-color: rgba(200, 93, 93, 0.4);
+            background: rgba(200, 93, 93, 0.1);
+            box-shadow: 0 0 15px rgba(200, 93, 93, 0.1);
         }
 
         /* Stats Bar */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 10;
         }
 
         .stat-card {
-            background: var(--bg-glass);
-            border: var(--border-glass);
-            border-radius: 8px;
-            padding: 1.5rem;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(20, 16, 13, 0.45);
+            border: 1px solid rgba(200, 164, 93, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(200, 164, 93, 0.03) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(200, 164, 93, 0.25);
+            box-shadow: 0 15px 35px rgba(200, 164, 93, 0.08);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .stat-card h3 {
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             color: var(--cream-muted);
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+            opacity: 0.7;
         }
 
         .stat-card .stat-val {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-family: var(--font-heading);
             font-weight: 800;
             color: var(--white);
+            line-height: 1.1;
         }
         .stat-card .stat-val span {
             color: var(--accent-gold);
@@ -126,53 +221,77 @@
         /* Main Workspace split: Orders vs Quick Actions */
         .dashboard-content {
             display: grid;
-            grid-template-columns: 1fr 280px;
+            grid-template-columns: 1fr 300px;
             gap: 2rem;
             flex-grow: 1;
+            position: relative;
+            z-index: 10;
         }
 
         /* Order grid board */
+        .orders-board-section {
+            display: flex;
+            flex-direction: column;
+        }
+
         .orders-board-section h2 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             margin-bottom: 1.5rem;
             font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.02em;
         }
 
         .orders-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
             gap: 1.5rem;
         }
 
         .order-ticket {
-            background: var(--bg-glass);
-            border: var(--border-glass);
-            border-radius: 12px;
+            background: rgba(20, 16, 13, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
             padding: 1.75rem;
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            transition: var(--transition-smooth);
+            overflow: hidden;
+        }
+
+        .order-ticket::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(200, 164, 93, 0.2);
             transition: var(--transition-quick);
         }
 
-        /* Status-specific card borders */
-        .order-ticket.status-pending {
-            border-left: 4px solid #c85d5d;
+        /* Status-specific top glows */
+        .order-ticket.status-pending::before {
+            background: #e05e5e;
+            box-shadow: 0 0 10px rgba(224, 94, 94, 0.5);
         }
-        .order-ticket.status-preparing {
-            border-left: 4px solid #c8a45d;
+        .order-ticket.status-preparing::before {
+            background: #e0ac5e;
+            box-shadow: 0 0 10px rgba(224, 172, 94, 0.5);
         }
-        .order-ticket.status-ready {
-            border-left: 4px solid #5dc87b;
+        .order-ticket.status-ready::before {
+            background: #5ee08b;
+            box-shadow: 0 0 10px rgba(94, 224, 139, 0.5);
         }
 
         .order-ticket:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
-            border-color: rgba(200, 164, 93, 0.2);
+            transform: translateY(-4px);
+            border-color: rgba(200, 164, 93, 0.25);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55), 0 0 25px rgba(200, 164, 93, 0.04);
         }
 
         .ticket-header {
@@ -181,11 +300,18 @@
             align-items: flex-start;
             margin-bottom: 1.25rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 0.75rem;
+            padding-bottom: 0.85rem;
+        }
+
+        .ticket-table-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
         }
 
         .ticket-table {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-family: var(--font-heading);
             font-weight: 800;
             color: var(--white);
@@ -198,16 +324,17 @@
             font-size: 0.75rem;
             color: var(--cream-muted);
             font-family: var(--font-heading);
-            margin-top: 0.2rem;
+            letter-spacing: 0.02em;
         }
 
         .ticket-timer {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--cream-muted);
             background: rgba(255, 255, 255, 0.03);
-            border: var(--border-glass);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.6rem;
+            border-radius: 30px;
+            font-weight: 600;
         }
 
         .ticket-items {
@@ -215,39 +342,55 @@
             margin-bottom: 1.25rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         .ticket-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.9rem;
             color: var(--cream);
+            padding: 0.4rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
         }
+        .ticket-item:last-child {
+            border-bottom: none;
+        }
+
+        .ticket-item-qty {
+            background: rgba(200, 164, 93, 0.08);
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            border: 1px solid rgba(200, 164, 93, 0.12);
+        }
+
         .ticket-item-name {
             font-weight: 500;
         }
-        .ticket-item-qty {
-            color: var(--accent-gold);
-            font-weight: 700;
-            margin-right: 0.5rem;
-        }
 
         .ticket-notes {
-            background: rgba(200, 164, 93, 0.04);
-            border: 1px dashed rgba(200, 164, 93, 0.15);
-            padding: 0.75rem;
-            border-radius: 6px;
+            background: rgba(200, 164, 93, 0.03);
+            border-left: 2px solid var(--accent-gold);
+            padding: 0.65rem 0.85rem;
+            border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
             color: var(--cream-muted);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             line-height: 1.4;
+            font-style: italic;
         }
 
         .ticket-footer {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 0.85rem;
         }
 
         .ticket-total-row {
@@ -255,8 +398,6 @@
             justify-content: space-between;
             font-size: 1rem;
             font-weight: 700;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 0.75rem;
             margin-bottom: 0.25rem;
         }
         .ticket-total-row span:last-child {
@@ -274,10 +415,10 @@
             padding: 0.65rem;
             font-size: 0.75rem;
             font-family: var(--font-heading);
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 4px;
+            letter-spacing: 0.06em;
+            border-radius: 6px;
             cursor: pointer;
             transition: var(--transition-quick);
             text-align: center;
@@ -287,25 +428,28 @@
             background: var(--accent-gold);
             border: 1px solid var(--accent-gold);
             color: var(--bg-main);
+            box-shadow: 0 4px 10px rgba(200, 164, 93, 0.15);
         }
         .btn-ticket-primary:hover {
             background: transparent;
             color: var(--accent-gold);
+            box-shadow: 0 4px 15px rgba(200, 164, 93, 0.25);
         }
 
         .btn-ticket-secondary {
-            background: transparent;
-            border: var(--border-glass-hover);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--cream);
         }
         .btn-ticket-secondary:hover {
-            border-color: var(--white);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--white);
         }
 
         .btn-ticket-danger {
-            background: transparent;
-            border: 1px solid rgba(200, 93, 93, 0.2);
+            background: rgba(200, 93, 93, 0.03);
+            border: 1px solid rgba(200, 93, 93, 0.15);
             color: rgba(200, 93, 93, 0.7);
             flex-grow: 0;
             width: 38px;
@@ -313,39 +457,162 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 6px;
         }
         .btn-ticket-danger:hover {
-            background: rgba(200, 93, 93, 0.08);
+            background: rgba(200, 93, 93, 0.12);
             border-color: #c85d5d;
             color: #c85d5d;
+            box-shadow: 0 0 10px rgba(200, 93, 93, 0.1);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.65rem;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.2rem 0.55rem;
+            border-radius: 12px;
+            line-height: 1;
+        }
+
+        .status-badge-pending {
+            background: rgba(224, 94, 94, 0.08);
+            color: #e05e5e;
+            border: 1px solid rgba(224, 94, 94, 0.15);
+        }
+        .status-badge-preparing {
+            background: rgba(224, 172, 94, 0.08);
+            color: #e0ac5e;
+            border: 1px solid rgba(224, 172, 94, 0.15);
+        }
+        .status-badge-ready {
+            background: rgba(94, 224, 139, 0.08);
+            color: #5ee08b;
+            border: 1px solid rgba(94, 224, 139, 0.15);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-badge-pending .status-dot {
+            background-color: #e05e5e;
+            box-shadow: 0 0 6px #e05e5e;
+            animation: pulse-glow-dot 1.5s infinite ease-in-out;
+        }
+        .status-badge-preparing .status-dot {
+            background-color: #e0ac5e;
+            box-shadow: 0 0 6px #e0ac5e;
+            animation: pulse-glow-dot 1.5s infinite ease-in-out;
+        }
+        .status-badge-ready .status-dot {
+            background-color: #5ee08b;
+            box-shadow: 0 0 6px #5ee08b;
+            animation: pulse-glow-dot 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow-dot {
+            0%, 100% { opacity: 0.55; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); filter: brightness(1.2); }
         }
 
         /* Sidebar Control Center */
         .sidebar-section h2 {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             margin-bottom: 1.5rem;
             font-weight: 700;
+            color: var(--white);
         }
 
         .barista-panel {
-            background: var(--bg-glass);
-            border: var(--border-glass);
-            border-radius: 8px;
-            padding: 1.75rem;
+            background: rgba(20, 16, 13, 0.5);
+            border: 1px solid rgba(200, 164, 93, 0.08);
+            border-radius: 16px;
+            padding: 2rem 1.75rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .barista-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(200, 164, 93, 0.02) 0%, transparent 100%);
+            pointer-events: none;
+            border-radius: 16px;
         }
 
         .no-orders-msg {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 5rem 0;
+            padding: 6rem 2rem;
             color: var(--cream-muted);
-            font-size: 1rem;
-            border: 1px dashed rgba(255,255,255,0.05);
-            border-radius: 12px;
+            font-size: 1.05rem;
+            border: 1px dashed rgba(200, 164, 93, 0.15);
+            border-radius: 16px;
             line-height: 1.8;
+            background: rgba(20, 16, 13, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Custom buttons for sidebar */
+        .btn-primary {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--bg-main);
+            background-color: var(--accent-gold);
+            padding: 0.9rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--accent-gold);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(200, 164, 93, 0.2);
+            transition: var(--transition-quick);
+        }
+        .btn-primary:hover {
+            background-color: transparent;
+            color: var(--accent-gold);
+            box-shadow: 0 4px 20px rgba(200, 164, 93, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--cream);
+            background-color: transparent;
+            padding: 0.9rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(200, 164, 93, 0.15);
+            cursor: pointer;
+            transition: var(--transition-quick);
+        }
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: var(--white);
+            color: var(--white);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 992px) {
@@ -359,6 +626,10 @@
     </style>
 </head>
 <body class="staff-body">
+
+    <!-- Ambient background glows -->
+    <div class="staff-bg-glow"></div>
+    <div class="staff-bg-glow-2"></div>
 
     <!-- Top Navigation Header -->
     <header class="staff-nav">
@@ -374,19 +645,31 @@
     <!-- Metrics Stats Row -->
     <section class="stats-grid">
         <div class="stat-card">
-            <h3>Active Queue</h3>
+            <div class="stat-card-header">
+                <h3>Active Queue</h3>
+                <span class="stat-icon">🕒</span>
+            </div>
             <div class="stat-val" id="stat-active-count">0</div>
         </div>
         <div class="stat-card">
-            <h3>Pending</h3>
+            <div class="stat-card-header">
+                <h3>Pending</h3>
+                <span class="stat-icon">📥</span>
+            </div>
             <div class="stat-val" id="stat-pending-count">0</div>
         </div>
         <div class="stat-card">
-            <h3>Served Today</h3>
+            <div class="stat-card-header">
+                <h3>Served Today</h3>
+                <span class="stat-icon">✅</span>
+            </div>
             <div class="stat-val" id="stat-served-count"><span>0</span></div>
         </div>
         <div class="stat-card">
-            <h3>Revenue (Est)</h3>
+            <div class="stat-card-header">
+                <h3>Revenue (Est)</h3>
+                <span class="stat-icon">💰</span>
+            </div>
             <div class="stat-val" id="stat-revenue"><span>$</span>0.00</div>
         </div>
     </section>
@@ -558,11 +841,18 @@
                     }
 
                     const notesHtml = order.notes ? `<div class="ticket-notes"><strong>Notes:</strong> ${order.notes}</div>` : "";
+                    const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
 
                     ticket.innerHTML = `
                         <div class="ticket-header">
                             <div>
-                                <div class="ticket-table">Table <span>${order.table}</span></div>
+                                <div class="ticket-table-row">
+                                    <div class="ticket-table">Table <span>${order.table}</span></div>
+                                    <span class="status-badge status-badge-${order.status}">
+                                        <span class="status-dot"></span>
+                                        ${statusText}
+                                    </span>
+                                </div>
                                 <div class="ticket-id">Order #${order.id}</div>
                             </div>
                             <span class="ticket-timer">${timerText}</span>
@@ -707,6 +997,9 @@
             
             // Interval to update "elapsed time" text every 30 seconds
             setInterval(renderOrdersBoard, 30000);
+
+            // Interval to sync orders list from localStorage (handles file:// tabs or sandbox limits)
+            setInterval(fetchOrders, 1500);
         });
     </script>
 </body>
