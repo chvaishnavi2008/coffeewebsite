@@ -3008,3 +3008,28 @@ footer {
     }
 }
 
+/* --- CUSTOM CUSTOMER MOBILE LOGOUT STYLES --- */
+@media (min-width: 769px) {
+    .mobile-logout-item {
+        display: none !important;
+    }
+}
+@media (max-width: 768px) {
+    .mobile-logout-item {
+        margin-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 1rem;
+        width: 100%;
+        text-align: center;
+    }
+    .mobile-logout-item a {
+        display: block;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+    /* Hide desktop nav-cta logout button on mobile to save space */
+    .navbar #btn-customer-logout {
+        display: none !important;
+    }
+}
+
