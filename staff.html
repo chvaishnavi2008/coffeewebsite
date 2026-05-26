@@ -504,6 +504,21 @@
             color: #5ee08b;
             border: 1px solid rgba(94, 224, 139, 0.15);
         }
+        .status-badge-confirmed {
+            background: rgba(200, 164, 93, 0.08);
+            color: var(--accent-gold);
+            border: 1px solid rgba(200, 164, 93, 0.15);
+        }
+        .status-badge-seated {
+            background: rgba(94, 172, 224, 0.08);
+            color: #5eaee0;
+            border: 1px solid rgba(94, 172, 224, 0.15);
+        }
+        .status-badge-cancelled {
+            background: rgba(224, 94, 94, 0.08);
+            color: #e05e5e;
+            border: 1px solid rgba(224, 94, 94, 0.15);
+        }
 
         .status-dot {
             width: 6px;
@@ -524,6 +539,21 @@
         .status-badge-ready .status-dot {
             background-color: #5ee08b;
             box-shadow: 0 0 6px #5ee08b;
+            animation: pulse-glow-dot 1.5s infinite ease-in-out;
+        }
+        .status-badge-confirmed .status-dot {
+            background-color: var(--accent-gold);
+            box-shadow: 0 0 6px var(--accent-gold);
+            animation: pulse-glow-dot 1.5s infinite ease-in-out;
+        }
+        .status-badge-seated .status-dot {
+            background-color: #5eaee0;
+            box-shadow: 0 0 6px #5eaee0;
+            animation: pulse-glow-dot 1.5s infinite ease-in-out;
+        }
+        .status-badge-cancelled .status-dot {
+            background-color: #e05e5e;
+            box-shadow: 0 0 6px #e05e5e;
             animation: pulse-glow-dot 1.5s infinite ease-in-out;
         }
 
@@ -1158,6 +1188,9 @@
             <div class="staff-status-badge">
                 <span class="staff-status-dot"></span> Active Terminal
             </div>
+            <button id="btn-open-reservations" class="btn-logout" style="display:flex; align-items:center; gap:0.5rem; margin-right: 0.5rem;">
+                <span>📅</span> Reservations <span class="tab-badge" id="reservations-badge-count" style="margin-left: 0.25rem; background: var(--accent-gold); color: var(--bg-main); font-size: 0.65rem; padding: 0.15rem 0.45rem; border-radius: 10px; font-weight: 700; display: none;">0</span>
+            </button>
             <button id="btn-open-history" class="btn-logout" style="display:flex; align-items:center; gap:0.5rem; margin-right: 0.5rem;">
                 <span>📋</span> History Log
             </button>
@@ -1274,6 +1307,32 @@
                 </div>
                 <div class="history-logs-list" id="history-logs-list-element">
                     <!-- History log entries will render dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE RESERVATIONS DRAWER -->
+    <div id="reservations-drawer-overlay" class="history-overlay">
+        <div class="history-drawer">
+            <button class="close-history" id="close-reservations" aria-label="Close Reservations">&times;</button>
+            <div class="history-header">
+                <h2>Table <span>Reservations</span></h2>
+                <p>Manage customer table bookings & space allocations</p>
+            </div>
+            <div class="history-content">
+                <div class="history-summary-stats" style="grid-template-columns: 1fr 1fr;">
+                    <div class="history-stat-mini">
+                        <span>Pending Bookings</span>
+                        <strong id="reservations-pending-count">0</strong>
+                    </div>
+                    <div class="history-stat-mini">
+                        <span>Total Bookings</span>
+                        <strong id="reservations-total-count">0</strong>
+                    </div>
+                </div>
+                <div class="history-logs-list" id="reservations-list-element">
+                    <!-- Reservation entries will render dynamically -->
                 </div>
             </div>
         </div>
@@ -1429,6 +1488,15 @@
             const historyTotalCount = document.getElementById("history-total-count");
             const historyBestSeller = document.getElementById("history-best-seller");
 
+            // Reservations element binds
+            const btnOpenReservations = document.getElementById("btn-open-reservations");
+            const btnCloseReservations = document.getElementById("close-reservations");
+            const reservationsOverlay = document.getElementById("reservations-drawer-overlay");
+            const reservationsListElement = document.getElementById("reservations-list-element");
+            const resPendingCount = document.getElementById("reservations-pending-count");
+            const resTotalCount = document.getElementById("reservations-total-count");
+            const resBadgeCount = document.getElementById("reservations-badge-count");
+
             const inputVolume = document.getElementById("chime-volume");
             const toggleMute = document.getElementById("chime-mute-toggle");
             const btnTestChime = document.getElementById("btn-test-chime");
@@ -1499,11 +1567,13 @@
                 const itemsPreview = order.items.map(item => `${item.qty}x ${item.name}`).join(", ");
                 const truncatedItems = itemsPreview.length > 55 ? itemsPreview.substring(0, 52) + "..." : itemsPreview;
                 
+                const titleText = order.table === "Takeaway" ? "New Take-away Order" : `New Table ${order.table} Order`;
+                
                 toast.innerHTML = `
                     <div class="toast-icon">🛎️</div>
                     <div class="toast-info">
                         <div class="toast-title">
-                            <span>New Table ${order.table} Order</span>
+                            <span>${titleText}</span>
                             <button class="toast-close" aria-label="Close alert">&times;</button>
                         </div>
                         <div class="toast-desc">Order #${order.id}: ${truncatedItems}</div>
@@ -1530,6 +1600,8 @@
                 setTimeout(closeToast, 6000);
             }
 
+            let reservationsList = [];
+
             // Sync from localStorage
             function fetchOrders() {
                 const storedOrders = localStorage.getItem("bmm_global_orders");
@@ -1552,6 +1624,165 @@
                 renderMetrics();
                 renderFilterTabs();
                 renderHistoryDrawer();
+                
+                // Fetch reservations as well
+                fetchReservations();
+            }
+
+            function fetchReservations() {
+                const storedRes = localStorage.getItem("bmm_global_reservations");
+                const parsed = storedRes ? JSON.parse(storedRes) : [];
+                
+                // If new reservation arrived, chime & toast
+                if (parsed.length > reservationsList.length) {
+                    const currentResIds = reservationsList.map(r => r.id);
+                    parsed.forEach(r => {
+                        if (!currentResIds.includes(r.id) && r.status === "pending") {
+                            playNewOrderSound();
+                            showReservationToast(r);
+                        }
+                    });
+                }
+
+                reservationsList = parsed;
+                renderReservationsDrawer();
+            }
+
+            function showReservationToast(res) {
+                if (!toastContainer) return;
+                
+                const toast = document.createElement("div");
+                toast.className = "toast-card";
+                toast.style.borderColor = "var(--accent-gold)";
+                
+                toast.innerHTML = `
+                    <div class="toast-icon">📅</div>
+                    <div class="toast-info">
+                        <div class="toast-title">
+                            <span>New Table Reservation</span>
+                            <button class="toast-close" aria-label="Close alert">&times;</button>
+                        </div>
+                        <div class="toast-desc">${res.name}: ${res.guests} people on ${res.formattedDate} at ${res.formattedTime}</div>
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.classList.add("show");
+                }, 50);
+                
+                const closeToast = () => {
+                    toast.classList.remove("show");
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+                };
+                
+                toast.querySelector(".toast-close").addEventListener("click", closeToast);
+                setTimeout(closeToast, 6000);
+            }
+
+            function renderReservationsDrawer() {
+                if (!reservationsList || !reservationsListElement) return;
+                reservationsListElement.innerHTML = "";
+
+                const pendingCount = reservationsList.filter(r => r.status === "pending").length;
+                const totalCount = reservationsList.length;
+
+                if (resPendingCount) resPendingCount.textContent = pendingCount;
+                if (resTotalCount) resTotalCount.textContent = totalCount;
+
+                // Update badge count in header
+                if (resBadgeCount) {
+                    if (pendingCount > 0) {
+                        resBadgeCount.textContent = pendingCount;
+                        resBadgeCount.style.display = "inline-block";
+                    } else {
+                        resBadgeCount.style.display = "none";
+                    }
+                }
+
+                if (reservationsList.length === 0) {
+                    reservationsListElement.innerHTML = `<div class="empty-history-msg">No table reservations logged today. Bookings made by customers will appear here.</div>`;
+                    return;
+                }
+
+                // Sort by timestamp (newest first)
+                const sortedRes = [...reservationsList].sort((a, b) => b.timestamp - a.timestamp);
+
+                sortedRes.forEach(res => {
+                    const card = document.createElement("div");
+                    card.className = "history-log-card";
+                    
+                    const statusText = res.status.charAt(0).toUpperCase() + res.status.slice(1);
+                    
+                    let actionsHtml = "";
+                    if (res.status === "pending") {
+                        actionsHtml = `
+                            <div class="ticket-actions" style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+                                <button class="btn-ticket btn-ticket-primary" style="padding:0.45rem 0.65rem;" data-action="confirm-res" data-id="${res.id}">Confirm</button>
+                                <button class="btn-ticket btn-ticket-secondary" style="padding:0.45rem 0.65rem; border-color:rgba(200,93,93,0.3); color:rgba(200,93,93,0.8);" data-action="cancel-res" data-id="${res.id}">Cancel</button>
+                            </div>
+                        `;
+                    } else if (res.status === "confirmed") {
+                        actionsHtml = `
+                            <div class="ticket-actions" style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+                                <button class="btn-ticket btn-ticket-primary" style="padding:0.45rem 0.65rem; background:#5eaee0; border-color:#5eaee0; color:var(--bg-main);" data-action="seat-res" data-id="${res.id}">Seat Guests</button>
+                                <button class="btn-ticket btn-ticket-secondary" style="padding:0.45rem 0.65rem; border-color:rgba(200,93,93,0.3); color:rgba(200,93,93,0.8);" data-action="cancel-res" data-id="${res.id}">Cancel</button>
+                            </div>
+                        `;
+                    } else if (res.status === "seated") {
+                        actionsHtml = `<div style="font-size:0.75rem; color:#5ee08b; font-style:italic; margin-top:0.5rem; text-align:right; font-weight:700;">✓ Seated</div>`;
+                    } else {
+                        actionsHtml = `<div style="font-size:0.75rem; color:#e05e5e; font-style:italic; margin-top:0.5rem; text-align:right; font-weight:700;">✗ Cancelled</div>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="history-log-card-header">
+                            <div class="history-log-table">${res.name}</div>
+                            <span class="status-badge status-badge-${res.status}">
+                                <span class="status-dot"></span>
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--cream-muted); display:flex; flex-direction:column; gap:0.25rem; margin-top:0.5rem;">
+                            <div>📅 <strong>Date:</strong> ${res.formattedDate}</div>
+                            <div>🕒 <strong>Time:</strong> ${res.formattedTime}</div>
+                            <div>👥 <strong>Guests:</strong> ${res.guests} ${res.guests == 1 ? 'Person' : 'People'}</div>
+                        </div>
+                        ${actionsHtml}
+                    `;
+                    reservationsListElement.appendChild(card);
+
+                    // Bind actions
+                    const confirmBtn = card.querySelector(`[data-action="confirm-res"]`);
+                    if (confirmBtn) {
+                        confirmBtn.addEventListener("click", () => updateReservationStatus(res.id, "confirmed"));
+                    }
+                    const seatBtn = card.querySelector(`[data-action="seat-res"]`);
+                    if (seatBtn) {
+                        seatBtn.addEventListener("click", () => updateReservationStatus(res.id, "seated"));
+                    }
+                    const cancelBtn = card.querySelector(`[data-action="cancel-res"]`);
+                    if (cancelBtn) {
+                        cancelBtn.addEventListener("click", () => {
+                            if (confirm(`Cancel reservation for ${res.name}?`)) {
+                                updateReservationStatus(res.id, "cancelled");
+                            }
+                        });
+                    }
+                });
+            }
+
+            function updateReservationStatus(resId, newStatus) {
+                const resIdx = reservationsList.findIndex(r => r.id === resId);
+                if (resIdx === -1) return;
+
+                reservationsList[resIdx].status = newStatus;
+                localStorage.setItem("bmm_global_reservations", JSON.stringify(reservationsList));
+                window.dispatchEvent(new Event("storage"));
+                fetchReservations();
             }
 
             // Save orders to localStorage
@@ -1619,6 +1850,26 @@
                 });
             }
 
+            // Reservations Drawer triggers
+            if (btnOpenReservations) {
+                btnOpenReservations.addEventListener("click", () => {
+                    reservationsOverlay.classList.add("active");
+                    fetchReservations();
+                });
+            }
+
+            if (btnCloseReservations) {
+                btnCloseReservations.addEventListener("click", () => {
+                    reservationsOverlay.classList.remove("active");
+                });
+            }
+
+            if (reservationsOverlay) {
+                reservationsOverlay.addEventListener("click", (e) => {
+                    if (e.target === reservationsOverlay) reservationsOverlay.classList.remove("active");
+                });
+            }
+
             function renderHistoryDrawer() {
                 if (!historyLogsList) return;
                 historyLogsList.innerHTML = "";
@@ -1664,9 +1915,14 @@
                         itemsHtml += `<div>${item.qty}x ${item.name}</div>`;
                     });
                     
+                    const isTakeaway = order.table === "Takeaway";
+                    const tableHtml = isTakeaway
+                        ? `<div class="history-log-table"><span style="color:var(--accent-gold); font-weight:800;">Take-away 🛍️</span></div>`
+                        : `<div class="history-log-table">Table <span>${order.table}</span></div>`;
+
                     card.innerHTML = `
                         <div class="history-log-card-header">
-                            <div class="history-log-table">Table <span>${order.table}</span></div>
+                            ${tableHtml}
                             <div class="history-log-time">${timeStr}</div>
                         </div>
                         <div class="history-log-items">
@@ -1748,11 +2004,16 @@
                     const notesHtml = order.notes ? `<div class="ticket-notes"><strong>Notes:</strong> ${order.notes}</div>` : "";
                     const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
 
+                    const isTakeaway = order.table === "Takeaway";
+                    const tableHtml = isTakeaway 
+                        ? `<div class="ticket-table"><span style="color:var(--accent-gold); font-weight:800;">Take-away 🛍️</span></div>`
+                        : `<div class="ticket-table">Table <span>${order.table}</span></div>`;
+
                     ticket.innerHTML = `
                         <div class="ticket-header">
                             <div>
                                 <div class="ticket-table-row">
-                                    <div class="ticket-table">Table <span>${order.table}</span></div>
+                                    ${tableHtml}
                                     <span class="status-badge status-badge-${order.status}">
                                         <span class="status-dot"></span>
                                         ${statusText}
@@ -1889,14 +2150,18 @@
 
             // Reset Archive stats
             btnClearArchive.addEventListener("click", () => {
-                if (confirm("Reset served count, revenue, and order logs back to zero?")) {
+                if (confirm("Reset served count, revenue, order logs, and reservations back to zero?")) {
                     servedCount = 0;
                     archivedRevenue = 0.00;
                     localStorage.setItem("bmm_served_count", 0);
                     localStorage.setItem("bmm_archived_revenue", "0.00");
                     
-                    // Clear completed orders from ordersList
-                    ordersList = ordersList.filter(o => o.status !== "completed");
+                    ordersList = [];
+                    reservationsList = [];
+                    localStorage.setItem("bmm_global_orders", "[]");
+                    localStorage.setItem("bmm_global_reservations", "[]");
+                    localStorage.setItem("bmm_seeded", "true"); // Prevent reseeding
+                    
                     saveOrders();
                     fetchOrders();
                 }
@@ -1907,7 +2172,106 @@
                 fetchOrders();
             });
 
+            function seedFakeData() {
+                const seeded = localStorage.getItem("bmm_seeded") === "true";
+                if (seeded) return;
+                
+                const orders = localStorage.getItem("bmm_global_orders");
+                const parsedOrders = orders ? JSON.parse(orders) : [];
+                if (parsedOrders.length === 0) {
+                    const fakeOrders = [
+                        {
+                            id: "BMM-4819",
+                            table: "3",
+                            items: [
+                                { name: "Classic Cappuccino", price: 5.25, qty: 1 },
+                                { name: "Smoked Salmon Bagel", price: 14.00, qty: 1 }
+                            ],
+                            notes: "Extra hot cappuccino, bagel toasted well",
+                            status: "pending",
+                            total: 20.79, // subtotal 19.25 + 8% tax
+                            timestamp: Date.now() - 6 * 60 * 1000 // 6 minutes ago (triggers delayed warning!)
+                        },
+                        {
+                            id: "BMM-7264",
+                            table: "5",
+                            items: [
+                                { name: "Velvet Latte", price: 5.50, qty: 2 },
+                                { name: "Chocolate Lava Cake", price: 9.00, qty: 1 }
+                            ],
+                            notes: "Warm up the lava cake",
+                            status: "preparing",
+                            total: 21.60, // subtotal 20.00 + 8% tax
+                            timestamp: Date.now() - 2 * 60 * 1000 // 2 minutes ago
+                        },
+                        {
+                            id: "BMM-9302",
+                            table: "Takeaway",
+                            items: [
+                                { name: "18-Hour Cold Brew", price: 6.00, qty: 1 }
+                            ],
+                            notes: "Add light ice",
+                            status: "ready",
+                            total: 6.48, // subtotal 6.00 + 8% tax
+                            timestamp: Date.now() - 1 * 60 * 1000 // 1 minute ago
+                        }
+                    ];
+                    localStorage.setItem("bmm_global_orders", JSON.stringify(fakeOrders));
+                }
+
+                const reservations = localStorage.getItem("bmm_global_reservations");
+                const parsedRes = reservations ? JSON.parse(reservations) : [];
+                if (parsedRes.length === 0) {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const tomorrowStr = tomorrow.toISOString().split("T")[0];
+                    const tomorrowFormatted = tomorrow.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+                    
+                    const todayStr = new Date().toISOString().split("T")[0];
+                    const todayFormatted = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+                    const fakeReservations = [
+                        {
+                            id: "RES-1102",
+                            name: "Sophia Loren",
+                            guests: "2",
+                            date: tomorrowStr,
+                            time: "19:00",
+                            formattedDate: tomorrowFormatted,
+                            formattedTime: "7:00 PM",
+                            status: "pending",
+                            timestamp: Date.now() - 10 * 60 * 1000
+                        },
+                        {
+                            id: "RES-4039",
+                            name: "Marcus Aurelius",
+                            guests: "4",
+                            date: todayStr,
+                            time: "20:30",
+                            formattedDate: todayFormatted,
+                            formattedTime: "8:30 PM",
+                            status: "confirmed",
+                            timestamp: Date.now() - 25 * 60 * 1000
+                        },
+                        {
+                            id: "RES-8821",
+                            name: "Cleopatra",
+                            guests: "6",
+                            date: todayStr,
+                            time: "13:00",
+                            formattedDate: todayFormatted,
+                            formattedTime: "1:00 PM",
+                            status: "seated",
+                            timestamp: Date.now() - 120 * 60 * 1000
+                        }
+                    ];
+                    localStorage.setItem("bmm_global_reservations", JSON.stringify(fakeReservations));
+                }
+                localStorage.setItem("bmm_seeded", "true");
+            }
+
             // Initial load
+            seedFakeData();
             fetchOrders();
             
             // Interval to update "elapsed time" text every 30 seconds
